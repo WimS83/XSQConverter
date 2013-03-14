@@ -35,19 +35,23 @@ public class XSQConverterJava {
         
                 
         Options options = new Options();
-        options.addOption("i", true, "XSQ input file path. XSQ file name should be $machineName_$dateString_$projectName_$owner_$laneNr.xsq");
-        options.addOption("o", true, "output directory path");
-        options.addOption("c", true, "output fastq chunksize. Default is 1000000");
-        options.addOption("l", true, "library which should be converted. For multiple libraries use this argument multiple times");
-        options.addOption("b", true, "barcodes which should be converted. For multiple barcodes use this argument multiple times");
-        options.addOption("d", false, "display all libraries names");
-        options.addOption("j", false, "display Java path");
-        options.addOption("f", true, "fastQ dialect / format. Either BWA or Sanger." );        
-        options.addOption("m", true, "file with matepair bacodes. Each line should contains a barcode color space sequence and a barcode name, separated with a tab. All barcodes are required to have the same length. A output file is created for every barcode name.  ");
-        options.addOption("n", true, "number of mismatches to be allowed for matching matepair barcodes. Default is 0.");
-        options.addOption("h", false, "print this message");
+        options.addOption("i","input", true, "XSQ input file path.");
+        options.addOption("o","output", true, "output directory path");
+        options.addOption("c","chunk", true, "output fastq chunksize. Default is 1000000");
+        options.addOption("l","library", true, "library which should be converted. For multiple libraries use this argument multiple times");
+        options.addOption("b","barcode", true, "barcodes which should be converted. For multiple barcodes use this argument multiple times");
+        options.addOption("d","display", false, "display all libraries names and quit without processing");
+        options.addOption("j","javapath", false, "display Java path");
+        options.addOption("f","fastq-dialect", true, "fastQ dialect / format. Either BWA or Sanger." );        
+        options.addOption("m","matepair-barcode-file", true, "file with matepair bacodes. Each line should contains a barcode color space sequence and a barcode name, separated with a tab. All barcodes are required to have the same length. A output file is created for every barcode name and tag combination.  ");
+        options.addOption("n","matepair-barcode-mismatches", true, "number of mismatches to be allowed for matching matepair barcodes. Default is 0.");
+        options.addOption("h","help", false, "print this message");
+        options.addOption("w","overwrite", false, "overwrite existing output. By default libraries for which existing output is present are skipped. ");
+        options.addOption("u","use-barcode-name", false, "use barcode in the output names. Should always be used when processing multiple unassigned libraries by barcode because they have the same name.");
         
-        CommandLineParser parser = new PosixParser();
+        ProcessingOptions processingOptions = new ProcessingOptions();
+        
+        CommandLineParser parser = new GnuParser();
         CommandLine cmd = null;
         try {
             cmd = parser.parse( options, args);
@@ -77,40 +81,62 @@ public class XSQConverterJava {
         {
             System.out.println("Not all required options are set");
             printHelp(options);           
-        }  
+        }         
         
-        
-        Map<String, String> matePairBarCodeMap = new HashMap<String, String>();
-        Integer MPBCMismatchesAllowed = 0;
         if(cmd.hasOption("m"))
         {
-            matePairBarCodeMap = readMatePairBarCodes(cmd);
-            MPBCMismatchesAllowed = new Integer(cmd.getOptionValue("n", "0"));
+            Map<String, String> matePairBarCodeMap = readMatePairBarCodes(cmd);
+            Integer MPBCMismatchesAllowed = new Integer(cmd.getOptionValue("n", "0"));
+            
+            processingOptions.setMatePairBarcodeMap(matePairBarCodeMap);
+            processingOptions.setMatePairBarcodeRun(true);
+            processingOptions.setMPBCMismatchesAllowed(MPBCMismatchesAllowed);
+            processingOptions.setMatePairBarCodeLength(matePairBarCodeMap.keySet().iterator().next().length());  
+        }        
+        
+        if(cmd.hasOption("u"))
+        {
+            processingOptions.setUseBarcodeInOutputName(true);
         }
         
         
-        Boolean bwaSpecific = false;
-        if(cmd.getOptionValue("f").equalsIgnoreCase("bwa"))
-        {
-            bwaSpecific = true;
-        };
-          
+        if(cmd.getOptionValue("f").equalsIgnoreCase("bwa")){ processingOptions.setBwaSpecific(true); }        
+        
+        processingOptions.setChunkSize( new Long(cmd.getOptionValue("c", "1000000")));     
         
         String xsqFilePath = cmd.getOptionValue("i"); 
+        processingOptions.setXSQFile(new File(xsqFilePath));
+        
         String outputPath = cmd.getOptionValue("o");
-        long chunkSize =  new Long(cmd.getOptionValue("c", "1000000"));   
+        File outputDir = createOutputDir(outputPath,xsqFilePath);
+        processingOptions.setOutputDir(outputDir);  
+        
 
         Map<String, String> librariesSubSet = getSpecifiedLibrarySubSet(cmd);
-        Map<Integer, Integer> barcodes = getSpecifiedBarcodeSubSet(cmd);        
+        if(!librariesSubSet.isEmpty())
+        {
+            processingOptions.setLibraryNameSubset(true);
+            processingOptions.setLibraryNamesSubsetList(librariesSubSet);
+        }        
+        
+        Map<Integer, Integer> barcodeSubset = getSpecifiedBarcodeSubSet(cmd);       
+        if(!barcodeSubset.isEmpty())
+        {
+            processingOptions.setBarCodeSubset(true);
+            processingOptions.setBarcodesSubsetList(barcodeSubset);
+        }
         
         System.out.println("Input file = " + xsqFilePath);
         System.out.println("Output directory = " + outputPath);
          
          
-        File outputDir = createOutputDir(outputPath,xsqFilePath);
+        
+        
+        
+        
         XSQFile xSQFile = new XSQFile(xsqFilePath);
         try {
-            xSQFile.processXSQFile(outputDir, chunkSize, librariesSubSet,barcodes,  bwaSpecific, matePairBarCodeMap, MPBCMismatchesAllowed);
+            xSQFile.processXSQFile(processingOptions);
         } catch (Exception ex) {
            ex.printStackTrace();
         }

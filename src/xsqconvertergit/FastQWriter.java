@@ -8,8 +8,10 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.apache.commons.io.FileUtils;
 
 /**
  * Writes FastQentries to an output file. 
@@ -19,15 +21,16 @@ import java.util.logging.Logger;
  */
 public class FastQWriter {
     
-    long readCounter = new Long(0);
-    Long chunkCounter = new Long(0);
-    BufferedWriter out = null;   
+    private long readCounter = new Long(0);
+    private Long chunkCounter = new Long(0);
+    private BufferedWriter out = null;   
     
-    private long chunkSize;
+    private long chunkSize;   
     
-    File outputDirReads;
     
-    String outputName;
+    private File outputDirReads;
+    
+    private String writerId;
 
     /**
      * Writes FastQentries to an output file.
@@ -38,14 +41,13 @@ public class FastQWriter {
      * @param laneNr laneNr that should be used in the name of the fastq files
      * @param tagName tag name that should be used in the name of the fastq files
      */
-    public FastQWriter(String outputName, File baseOutputDir, long chunkSize) {
+    public FastQWriter(String writerId, File baseOutputDir, long chunkSize) {
         
         this.chunkSize = chunkSize;
-        this.outputName = outputName;
-       
-        createOutputDir(baseOutputDir, outputName);
+        this.writerId = writerId;
         
-        setWriterToNextChunk();          
+       
+        createOutputDir(baseOutputDir, writerId);   
         
     }    
     
@@ -54,12 +56,32 @@ public class FastQWriter {
      * @param outputDir the base output directory
      * @param libraryName the library name being processed
      */
-    private void createOutputDir(File baseOutputDir, String outputName ) {
+    private void createOutputDir(File baseOutputDir, String writerId ) {
        
-        File outputDir = new File(baseOutputDir,outputName );
-        outputDir.mkdir();
+        File outputDir = new File(baseOutputDir,writerId );
+        //create the outputDir if it doesn't exist 
+        if(!outputDir.exists())
+        {
+            outputDir.mkdir();
+        }
+        
         outputDirReads = new File(outputDir, "reads" );        
-        outputDirReads.mkdir();
+        if(!outputDirReads.exists())
+        {
+            outputDirReads.mkdir();
+        } 
+        
+        
+        
+    }
+    
+    public boolean checkForExistingOutput() {
+        
+        //check if there are already fastq files in the outputDir and it's subdirectories
+        String[] extensions = new String[]{"fastq"};
+        List<File> fastqFiles = (List<File>) FileUtils.listFiles(outputDirReads, extensions, true);
+        
+        return !fastqFiles.isEmpty();  
     }
     
     
@@ -74,7 +96,7 @@ public class FastQWriter {
         chunkFileName.append("p");
         chunkFileName.append(chunkCounter);
         chunkFileName.append('.');
-        chunkFileName.append(outputName);
+        chunkFileName.append(writerId);
 
         chunkFileName.append(".fastq");   
         
@@ -99,8 +121,10 @@ public class FastQWriter {
     public void writeFastQEntry(CSFastQEntryInterface fastQEntry) {
         try {
             
-            fastQEntry.setSeqName(fastQEntry.getSeqName()+"_"+readCounter );            
+            if(readCounter==0){setWriterToNextChunk();}
             
+            fastQEntry.setSeqName(fastQEntry.getSeqName()+"_"+readCounter );            
+
             if(readCounter % chunkSize == 0 && readCounter != 0)
             {
                 closeWriter();
@@ -108,6 +132,8 @@ public class FastQWriter {
             }            
             out.write(fastQEntry.toString());
             readCounter++;
+            
+                        
         } catch (IOException ex) {
             Logger.getLogger(XSQConverterJava.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -119,7 +145,11 @@ public class FastQWriter {
     public void closeWriter()
     {
         try {
-            out.close();
+            if(out != null)
+            {
+                out.close();
+            }
+            
         } catch (IOException ex) {
             Logger.getLogger(XSQConverterJava.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -127,8 +157,22 @@ public class FastQWriter {
     
     public void printNrReadsWritten()
     {
-        System.out.println(outputName+"\t"+readCounter);           
+        System.out.println(writerId+"\t"+readCounter);           
     }
+
+    public String getWriterId() {
+        return writerId;
+    }
+
+    public long getReadCounter() {
+        return readCounter;
+    }
+    
+    
+    
+    
+
+    
     
     
     

@@ -6,10 +6,12 @@ package xsqconvertergit;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
 
     
 
@@ -19,67 +21,45 @@ import java.util.Set;
  */
 public class OutPutWriter {
     
+    private ProcessingOptions processingOptions;
     
-    Boolean bwaSpecific;    
-    
-    String currentLibraryName;
-    String currentTileName;
-    String currentTagName;
+    private Library currentLibrary;
+    private String currentTileName;
+    private String currentTagName;
             
-    List<String> libraryNames;
-    Map<String, Integer> tagNameLengthMap;
+    private List<Library> libraries;
+    private Map<String, Integer> tagNameLengthMap;    
+   
     
-    long chunkSize;
+    private Long f3Counter = new Long(1);
+    private  Long r3Counter = new Long(1);   
     
-    File outputDir;
+    private Map<Long, String> r3ReadNrBarCodeMap;
     
-    Map<String, FastQWriter> libraryAndTagSpecificWriters;
-    Map<String, FastQWriter> matePairBarCodeSpecificWriters;
+    private Map<Character, Character> BWAToCSMap;
+     
     
-    //mate pair specific code
-    Boolean matePairBarCode = false;
-    
-    Long f3Counter = new Long(1);
-    Long r3Counter = new Long(1);
-    Map<String, String> matePairBarCodeMap;
-    
-    Map<Long, String> r3ReadNrBarCodeMap;
-    
-    Map<Character, Character> BWAToCSMap;
-    Integer barcodeSize = null;
-    
-    Integer MPBCMismatchesAllowed;
+    //writer collections
+    private HashMap<String, FastQWriter> matePairBarCodeSpecificWriters;
+    private HashMap<String, FastQWriter> libraryAndTagSpecificWriters;   
     
     
 
-    public OutPutWriter(Boolean bwaSpecific, Map<String, Integer> tagNameLengthMap, List<Library> libraries, File outputDir, Long chunkSize, Map<String, String> matePairBarCodeMap, Integer MPBCMismatchesAllowed) {
+    public OutPutWriter(ProcessingOptions processingOptions, Map<String, Integer> tagNameLengthMap, List<Library> libraries) {
         
-        
-         this.bwaSpecific = bwaSpecific;
-         this.tagNameLengthMap = tagNameLengthMap;
-         this.MPBCMismatchesAllowed = MPBCMismatchesAllowed;
+         this.processingOptions = processingOptions;
          
-         libraryNames = new ArrayList<String>();
+         this.tagNameLengthMap = tagNameLengthMap;        
+         this.libraries = libraries;  
          
-         for(Library libarary : libraries)
-         {
-             libraryNames.add(libarary.getName());
-         }    
-         
-         this.outputDir = outputDir;
-         this.chunkSize = chunkSize;
-         
-         if(matePairBarCodeMap.isEmpty())
-         {
-             createLibraryAndTagSpecificWriters();   
+         if(processingOptions.getMatePairBarcodeRun())
+         {                          
+            createMatePairBarcodeSpecificWriters(processingOptions.getMatePairBarcodeMap());             
          }
          else
          {
-             matePairBarCode = true;
-             this.matePairBarCodeMap = matePairBarCodeMap;
-             barcodeSize = matePairBarCodeMap.keySet().iterator().next().length();
-             createMatePairBarcodeSpecificWriters(matePairBarCodeMap);
-         }
+            createLibraryAndTagSpecificWriters();   
+         }  
          
          
         BWAToCSMap = new HashMap<Character, Character>();
@@ -95,7 +75,7 @@ public class OutPutWriter {
     public CSFastQEntryInterface getNewEntry()
     {
         CSFastQEntryInterface cSFastQEntry = null;
-        if(bwaSpecific)
+        if(processingOptions.getBwaSpecific())
         {
             cSFastQEntry = new BWACSFastQEntry();
         }
@@ -104,9 +84,9 @@ public class OutPutWriter {
             cSFastQEntry= new CSFastQEntry();
         }
         
-        if(matePairBarCode)
+        if(processingOptions.getMatePairBarcodeRun())
         {
-            cSFastQEntry.setReadStartPosition(1+barcodeSize);
+            cSFastQEntry.setReadStartPosition(1+processingOptions.getMatePairBarCodeLength());
         
         }
         else
@@ -120,12 +100,14 @@ public class OutPutWriter {
     
      public void writeFastQEntry(CSFastQEntryInterface fastQEntry) {
         
-        fastQEntry.setSeqName(formatLibraryTagName(currentLibraryName, currentTagName)+ "_"+currentTileName);
+        
+        fastQEntry.setSeqName(currentLibrary.getName()+ "_" + currentTagName+ "_"+currentTileName);        
          
         FastQWriter fastQWriter;
         
-        if(matePairBarCode)
+        if(processingOptions.getMatePairBarcodeRun())
         {
+            
             fastQWriter = getFastQwriterBasedOnBarcode(fastQEntry);            
         }
         else
@@ -141,14 +123,14 @@ public class OutPutWriter {
         
         String seq = fastQEntry.getSeq();
         
-        if(bwaSpecific)
+        if(processingOptions.getBwaSpecific())
         {
             seq = convertBWAToCS(seq);
         }
         
         List<String> barcodeNamesMatched = new ArrayList<String>();
         String barcodeName = "";
-        for(String barcode : matePairBarCodeMap.keySet())
+        for(String barcode : processingOptions.getMatePairBarcodeMap().keySet())
         {
             Boolean match = true;
             
@@ -162,7 +144,7 @@ public class OutPutWriter {
                   mismatches++;
                }
                
-               if(mismatches > MPBCMismatchesAllowed)
+               if(mismatches > processingOptions.getMPBCMismatchesAllowed())
                {
                    match = false;
                    break;            
@@ -171,7 +153,7 @@ public class OutPutWriter {
             
             if(match)
             {
-                barcodeNamesMatched.add(matePairBarCodeMap.get(barcode));
+                barcodeNamesMatched.add(processingOptions.getMatePairBarcodeMap().get(barcode));
             }
             
             
@@ -203,8 +185,8 @@ public class OutPutWriter {
     }    
     
     
-    public void setCurrentLibraryName(String currentLibraryName) {
-        this.currentLibraryName = currentLibraryName;
+    public void setCurrentLibrary(Library currentLibrary) {
+        this.currentLibrary = currentLibrary;
     }
 
     public void setCurrentTileName(String currentTileName) {
@@ -237,11 +219,10 @@ public class OutPutWriter {
 
     public void closeWriters() {
         
-        if(matePairBarCode)
+        if(processingOptions.getMatePairBarcodeRun())
         {
             for(FastQWriter fastQWriter : matePairBarCodeSpecificWriters.values())
-            {
-                fastQWriter.printNrReadsWritten();
+            {                
                 fastQWriter.closeWriter();
             }       
         }
@@ -249,7 +230,6 @@ public class OutPutWriter {
         {
             for(FastQWriter fastQWriter : libraryAndTagSpecificWriters.values())
             {
-                fastQWriter.printNrReadsWritten();
                 fastQWriter.closeWriter();
             }         
         }
@@ -261,32 +241,44 @@ public class OutPutWriter {
         
         libraryAndTagSpecificWriters = new HashMap<String, FastQWriter>();
         
-        for(String libraryName : libraryNames)
+        for(Library library : libraries)
         {
             for(String tagName : tagNameLengthMap.keySet())
             {
-                String libAndTagName = formatLibraryTagName(libraryName, tagName);
-                FastQWriter fastQWriter = new FastQWriter(libAndTagName, outputDir, chunkSize);
-                libraryAndTagSpecificWriters.put(libAndTagName,fastQWriter );            
+                String writerID = library.getNameAndBarCode()+ "_" +tagName;
+                String writerName;
+                
+                if(processingOptions.getUseBarcodeInOutputName())
+                {
+                    writerName = library.getNameAndBarCode() + "_" + tagName;
+                }
+                else
+                {
+                     writerName = library.getName() + "_" + tagName;
+                }
+                
+                FastQWriter fastQWriter = new FastQWriter(writerName, processingOptions.getOutputDir(), processingOptions.getChunkSize());
+                libraryAndTagSpecificWriters.put(writerID,fastQWriter );            
             }
         }
         
     }
     
     
-    private String formatLibraryTagName(String libraryName, String tagName)
-    {
-        String[] libraryNameSplit = libraryName.split("_");
-        libraryName = libraryNameSplit[0];
-        
-        String libAndTagName =  libraryName +"_"+ tagName; 
-        return libAndTagName;
-        
-    }
+//    private String formatLibraryTagName(String libraryName, String tagName)
+//    {
+//        String[] libraryNameSplit = libraryName.split("_");
+//        libraryName = libraryNameSplit[0];
+//        
+//        String libAndTagName =  libraryName +"_"+ tagName; 
+//        return libAndTagName;
+//        
+//    }
 
     private FastQWriter getCurrentFastQWriter() {
         
-        return libraryAndTagSpecificWriters.get(formatLibraryTagName(currentLibraryName, currentTagName));             
+        String writerID = currentLibrary.getNameAndBarCode() + "_"+ currentTagName;
+        return libraryAndTagSpecificWriters.get(writerID);             
     }
     
      private FastQWriter getFastQwriterBasedOnBarcode(CSFastQEntryInterface fastQEntry) {
@@ -322,24 +314,24 @@ public class OutPutWriter {
         {
             if(!matePairBarCodeSpecificWriters.containsKey(barcodeName+"F3"))
             {
-                FastQWriter f3FastQWriter = new FastQWriter(barcodeName+"F3", outputDir, chunkSize);
+                FastQWriter f3FastQWriter = new FastQWriter(barcodeName+"F3", processingOptions.getOutputDir(), processingOptions.getChunkSize());
                 matePairBarCodeSpecificWriters.put(barcodeName+"F3", f3FastQWriter);
                 
-                FastQWriter r3FastQWriter = new FastQWriter(barcodeName+"R3", outputDir, chunkSize);
+                FastQWriter r3FastQWriter = new FastQWriter(barcodeName+"R3", processingOptions.getOutputDir(), processingOptions.getChunkSize());
                 matePairBarCodeSpecificWriters.put(barcodeName+"R3", r3FastQWriter);
             }
         }
         
-        FastQWriter f3NoBarcodeMatchFastQWriter = new FastQWriter("noBarcodeMatchF3", outputDir, chunkSize);
+        FastQWriter f3NoBarcodeMatchFastQWriter = new FastQWriter("noBarcodeMatchF3", processingOptions.getOutputDir(), processingOptions.getChunkSize());
         matePairBarCodeSpecificWriters.put("noBarcodeMatchF3", f3NoBarcodeMatchFastQWriter);
 
-        FastQWriter r3NoBarcodeMatchFastQWriter = new FastQWriter("noBarcodeMatchR3", outputDir, chunkSize);
+        FastQWriter r3NoBarcodeMatchFastQWriter = new FastQWriter("noBarcodeMatchR3", processingOptions.getOutputDir(), processingOptions.getChunkSize());
         matePairBarCodeSpecificWriters.put("noBarcodeMatchR3", r3NoBarcodeMatchFastQWriter);
         
-        FastQWriter f3MultipleBarcodeMatchFastQWriter = new FastQWriter("multipleBarcodeMatchF3", outputDir, chunkSize);
+        FastQWriter f3MultipleBarcodeMatchFastQWriter = new FastQWriter("multipleBarcodeMatchF3", processingOptions.getOutputDir(), processingOptions.getChunkSize());
         matePairBarCodeSpecificWriters.put("multipleBarcodeMatchF3", f3MultipleBarcodeMatchFastQWriter);
 
-        FastQWriter r3MultipleBarcodeMatchFastQWriter = new FastQWriter("multipleBarcodeMatchR3", outputDir, chunkSize);
+        FastQWriter r3MultipleBarcodeMatchFastQWriter = new FastQWriter("multipleBarcodeMatchR3", processingOptions.getOutputDir(), processingOptions.getChunkSize());
         matePairBarCodeSpecificWriters.put("multipleBarcodeMatchR3", r3MultipleBarcodeMatchFastQWriter);
         
         
@@ -359,6 +351,60 @@ public class OutPutWriter {
         
         return CSSeq.toString();
         
+    }
+
+    public Boolean checkExistingOutput(Library library) {
+        
+        Boolean existingOutput = false;
+        
+        if(processingOptions.getMatePairBarcodeRun())
+        {                          
+            if(matePairBarCodeSpecificWriters.values().iterator().next().checkForExistingOutput())
+            {
+                existingOutput = true;
+            }       
+        }
+        else
+        {
+            for(String tagName : tagNameLengthMap.keySet())
+            {
+                String writerID = library.getNameAndBarCode() + "_"+ tagName;
+                if(libraryAndTagSpecificWriters.get(writerID).checkForExistingOutput())
+                {
+                    existingOutput = true;
+                }
+                
+            }
+        } 
+        
+        return existingOutput;
+        
+    }
+
+    public Collection<FastQWriter> getFastQWriters() {
+        
+        Collection<FastQWriter> fastQWriters = null;
+        if(processingOptions.getMatePairBarcodeRun())
+        {
+            fastQWriters = matePairBarCodeSpecificWriters.values();
+        }
+        else
+        {
+            fastQWriters = libraryAndTagSpecificWriters.values();
+        }
+        
+        return fastQWriters;
+        
+        
+        
+    }
+
+    public void removeExistingOutput() {
+        
+        for(File exitingOutputFileOrDir : processingOptions.getOutputDir().listFiles())
+        {
+            exitingOutputFileOrDir.delete();
+        }
     }
 
    

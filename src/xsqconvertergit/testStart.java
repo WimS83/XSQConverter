@@ -23,21 +23,14 @@ public class testStart {
     {
         
         List<String> arguments = new ArrayList<String>();
-//        arguments.add("-i");
-//        arguments.add("/home/wim/Analysis/BC_MP/WKZ1_20121113_MixedMPRun14Run47_Marc_01.xsq");
-//        arguments.add("-o");
-//        arguments.add("/home/wim/Analysis/BC_MP/BC_MP_output_mismatch0_withoutBarcode/");
-//        arguments.add("-f");
-//        arguments.add("Sanger");
-//        arguments.add("-m");
-//        arguments.add("/home/wim/Analysis/BC_MP/BC_setIA_2.txt");
-//        arguments.add("-n");
-//        arguments.add("0");
-       
+        arguments.add("-i");
+        arguments.add("/home/wim/Analysis/xsq_converter_test_sets/./bcfrag_case/inputFiles/HU03_20121219_MaartjeChip2R_Nico_L02.xsq");
+        arguments.add("-o");
+        arguments.add("/home/wim/Analysis/xsq_converter_test_sets/bcfrag_case/outputVersionMarch2013");
+        arguments.add("-f");
+        arguments.add("BWA");  
         
-        
-        
-        
+             
         
                 
         

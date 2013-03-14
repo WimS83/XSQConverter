@@ -33,14 +33,37 @@ public class XSQFile {
     
     List<Library> libraries = null;
     
-    File outputDir = null;
+    ProcessingOptions processingOptions;
+    
+    
     
 //    String laneNr = null;
 //    String dateString = null;    
     
     Group rootGroup = null;
+    
+    OutPutWriter outPutWriter = null;
 
     StringBuilder metrics = new StringBuilder();    
+
+    private List<Library> removeLibrariesWithExistingOutput(List<Library> libraries, OutPutWriter outPutWriter) {
+        
+        List<Library> librariesWithoutExistingOutput = new ArrayList<Library>();
+        
+        for(Library library: libraries)
+        {
+            if(outPutWriter.checkExistingOutput(library))
+            {
+                System.out.println("Not processing library " + library.getNameAndBarCode() + " because existing fastq output is found for this library. ");
+            }
+            else
+            {
+                librariesWithoutExistingOutput.add(library);
+            }        
+        }             
+        
+        return librariesWithoutExistingOutput;         
+    }
     
      
      
@@ -101,7 +124,8 @@ public class XSQFile {
         
         for(Object rootMember: rootGroup.getMemberList())
         {
-            Group rootMemberGroup = (Group)rootMember;
+            Group rootMemberGroup = (Group)rootMember;   
+            
             Attribute libraryNameAttribute = getGroupAttribute(rootMemberGroup,"LibraryName" );
             if(libraryNameAttribute != null)
             {
@@ -187,42 +211,36 @@ public class XSQFile {
      * @param outputDir the base output dir
      * @param chunkSize the chunksize to use for splitting the output fastQ files.
      */
-    public void processXSQFile(
-                                    File outputDir, 
-                                    long chunkSize, 
-                                    Map<String, String> librariesSubSetMap, 
-                                    Map<Integer, Integer> barCodes , 
-                                    boolean BWASpecific, 
-                                    Map<String, String> matePairBarcode, 
-                                    Integer MPBCMismatchesAllowed) 
-            throws Exception {
+    public void processXSQFile( ProcessingOptions processingOptions) throws Exception 
+    {
         
-        this.outputDir = outputDir;        
+        this.processingOptions = processingOptions;     
         
-        List librariesToProcess = null;          
+        List<Library> librariesToProcess = null;          
+        
+        
         
         //if barcodes are specified get the list of libraries matching these barcodes
-        if(!barCodes.isEmpty())
+        if(processingOptions.getBarCodeSubset())
         {   
-            librariesToProcess = getLibrariesByBarCode(libraries, barCodes);
-        
+            librariesToProcess = getLibrariesByBarCode(libraries, processingOptions.getBarcodesSubsetList()); 
         }
-        //otherwise process all the libraries specified by name of all the non unassigned and non classified libraries
+        //otherwise process all the libraries specified by name or all the non unassigned and non classified libraries
         else
         {        
             //get the user specified libraries
-            if(!librariesSubSetMap.isEmpty())
+            if(processingOptions.getLibraryNameSubset())
             {
-                librariesToProcess = getLibraryByName(libraries, librariesSubSetMap);           
+                librariesToProcess = getLibraryByName(libraries, processingOptions.getLibraryNamesSubsetList());           
             }
             //get all the non unassigned and non unclassified libraries
             else
             {
                 librariesToProcess = removeUnAssignedAndUnclassifiedLibrary(libraries);
             }
-        }
+        }          
                
-        processLibraries(librariesToProcess, outputDir, chunkSize, usedTags, BWASpecific, matePairBarcode, MPBCMismatchesAllowed);        
+        processLibraries(librariesToProcess, usedTags);        
     } 
     
     private List<Library> getLibraryByName(List<Library> libraries, Map<String, String> librariesSubSetMap) throws Exception
@@ -248,7 +266,7 @@ public class XSQFile {
     
     
     
-    private List getLibrariesByBarCode(List<Library> libraries, Map<Integer, Integer> barCodesMap) throws Exception {
+    private List<Library> getLibrariesByBarCode(List<Library> libraries, Map<Integer, Integer> barCodesMap) throws Exception {
        List<Library> librariesSubSet = new ArrayList<Library>();
         
        for(Library library :libraries)
@@ -300,49 +318,34 @@ public class XSQFile {
      * @param libraries the list of libraries to process
      */
     private  void processLibraries(
-                                        List<Library> libraries, 
-                                        File outputDir,
-                                        long chunkSize, 
-                                        Map<String,Integer> usedTags, 
-                                        boolean bwaSpecific, 
-                                        Map<String, String> matePairBarcode, 
-                                        Integer MPBCMismatchesAllowed)
+                                        List<Library> libraries,                                         
+                                        Map<String,Integer> usedTags
+                                        )
     {
-        OutPutWriter outPutWriter = new OutPutWriter(bwaSpecific, usedTags, libraries, outputDir, chunkSize, matePairBarcode, MPBCMismatchesAllowed);
+        outPutWriter = new OutPutWriter(processingOptions, usedTags, libraries);             
+        
+        if(processingOptions.getOverwriteExistingOutput())
+        {
+           outPutWriter.removeExistingOutput(); 
+        }
+        else
+        {
+            libraries = removeLibrariesWithExistingOutput(libraries, outPutWriter);
+        }
+        
         
         long totalReadCounter = 0;
         for(Library library : libraries)
         {             
-//           Map<String, FastQWriter> fastQWriterPerTag = new HashMap<String, FastQWriter>();
-//           for(String tag : usedTags.keySet())
-//           {
-////             fastQWriterPerTag.put(tag, new FastQWriter(libraryObject.toString(), outputDir, chunkSize, dateString, laneNr, tag));
-//               fastQWriterPerTag.put(tag, new FastQWriter(library.getName(), outputDir, chunkSize, tag, bwaSpecific));
-//           }           
-           
-           
-           
+ 
            long libraryReadCount = library.processLibrary(outPutWriter);
-           totalReadCounter += libraryReadCount;
-           
-           //for 
-//           for(FastQWriter fastQWriter: fastQWriterPerTag.values() )
-//           {
-//               metrics.append(fastQWriter.getLibraryName());
-//               metrics.append("\t");
-//               metrics.append(fastQWriter.getReadCounter());
-//               metrics.append("\n");
-//               System.out.println("Processed tag "+ fastQWriter.getTagName() + "with "+fastQWriter.getReadCounter()+" reads");  
-//           }
-           
-                   
-           
+           totalReadCounter += libraryReadCount;               
         }
         
-        outPutWriter.closeWriters();
+        outPutWriter.closeWriters();        
         
         
-        System.out.println("Processed "+libraries.size() + "libraries and a total of "+totalReadCounter+" reads");  
+        System.out.println("Processed "+libraries.size() + " libraries and a total of "+totalReadCounter+" reads");  
         printMetrics();
         
     }    
@@ -429,12 +432,31 @@ public class XSQFile {
     }
     
     private void printMetrics() {
-        System.out.println(metrics);   
         
-        File metricsFile = new File(outputDir,"conversionMetrics.txt" );
+        for(FastQWriter fastQWriter: outPutWriter.getFastQWriters())
+        {
+           
+           //skip the writers that have not been used or didn't write anything
+           if(fastQWriter.getReadCounter() == 0) { continue;}
+           
+           metrics.append(fastQWriter.getWriterId());
+           metrics.append("\t");
+           metrics.append(fastQWriter.getReadCounter());
+           metrics.append("\n");
+           System.out.println("Processed tag "+ fastQWriter.getWriterId() + " with "+fastQWriter.getReadCounter()+" reads");  
+        }          
+        
+        
+        
+        
+        File metricsFile = new File(processingOptions.getOutputDir(),"conversionMetrics.txt" );        
+        
+        Boolean appendMetricsToExistingFile = processingOptions.getOverwriteExistingOutput()==false;
+        
+        
         try {
-           FileWriter  fstream = new FileWriter(metricsFile);
-            fstream.write(metrics.toString());
+            FileWriter  fstream = new FileWriter(metricsFile, appendMetricsToExistingFile);
+            fstream.write(metrics.toString());  
              fstream.close();
         } catch (IOException ex) {
             Logger.getLogger(XSQFile.class.getName()).log(Level.SEVERE, null, ex);
