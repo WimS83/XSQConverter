@@ -23,6 +23,7 @@ public class CSFastQEntry implements CSFastQEntryInterface {
     private StringBuilder readQvalueSb = null;   
     
     private Integer readStartPosition = null;
+    private Integer readLengthCutoff = null;
     
     
     public CSFastQEntry()    
@@ -53,6 +54,11 @@ public class CSFastQEntry implements CSFastQEntryInterface {
     {
         this.readStartPosition = readStartPosition;
     }
+    
+     @Override
+     public void setReadLengthCutoff(int readLengthCutoff) {
+        this.readLengthCutoff = readLengthCutoff;
+     }
     
     
     
@@ -94,16 +100,21 @@ public class CSFastQEntry implements CSFastQEntryInterface {
     @Override
     public String toString() {
         
-                
+        int readEndPosition = readCSSb.length();
+        if(( readStartPosition + readLengthCutoff) < readEndPosition)
+        {
+            readEndPosition =  readStartPosition + readLengthCutoff;
+        }        
+        
         StringBuilder sb = new StringBuilder(105);
         sb.append("@");
         sb.append(seqName);
         sb.append("\n");
-        sb.append(readCSSb.substring(readStartPosition));
+        sb.append(readCSSb.substring(readStartPosition, readEndPosition));
         sb.append("\n");
         sb.append(description);
         sb.append("\n");
-        sb.append(readQvalueSb.substring(readStartPosition));
+        sb.append(readQvalueSb.substring(readStartPosition, readEndPosition));
         sb.append("\n");
         
         return sb.toString();    

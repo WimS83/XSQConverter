@@ -44,9 +44,9 @@ public class XSQFile {
     
     OutPutWriter outPutWriter = null;
 
-    StringBuilder metrics = new StringBuilder();    
+    
 
-    private List<Library> removeLibrariesWithExistingOutput(List<Library> libraries, OutPutWriter outPutWriter) {
+    private List<Library> removeLibrariesAndWritersWithExistingOutput(List<Library> libraries, OutPutWriter outPutWriter) {
         
         List<Library> librariesWithoutExistingOutput = new ArrayList<Library>();
         
@@ -54,6 +54,7 @@ public class XSQFile {
         {
             if(outPutWriter.checkExistingOutput(library))
             {
+                outPutWriter.removeFastQWriters(library);
                 System.out.println("Not processing library " + library.getNameAndBarCode() + " because existing fastq output is found for this library. ");
             }
             else
@@ -329,9 +330,11 @@ public class XSQFile {
            outPutWriter.removeExistingOutput(); 
         }
         else
-        {
-            libraries = removeLibrariesWithExistingOutput(libraries, outPutWriter);
+        {            
+            libraries = removeLibrariesAndWritersWithExistingOutput(libraries, outPutWriter);
         }
+        
+        outPutWriter.openFastQFilesForWriting();
         
         
         long totalReadCounter = 0;
@@ -433,20 +436,16 @@ public class XSQFile {
     
     private void printMetrics() {
         
-        for(FastQWriter fastQWriter: outPutWriter.getFastQWriters())
+        SortedMap<String, String> metricsMap = outPutWriter.getMetrics();                       
+        
+        StringBuilder metricsString = new StringBuilder();         
+        for(String libraryAndTag : metricsMap.keySet())
         {
-           
-           //skip the writers that have not been used or didn't write anything
-           if(fastQWriter.getReadCounter() == 0) { continue;}
-           
-           metrics.append(fastQWriter.getWriterId());
-           metrics.append("\t");
-           metrics.append(fastQWriter.getReadCounter());
-           metrics.append("\n");
-           System.out.println("Processed tag "+ fastQWriter.getWriterId() + " with "+fastQWriter.getReadCounter()+" reads");  
-        }          
-        
-        
+            metricsString.append(libraryAndTag);
+            metricsString.append("\t");
+            metricsString.append(metricsMap.get(libraryAndTag));
+            metricsString.append("\n");
+        }  
         
         
         File metricsFile = new File(processingOptions.getOutputDir(),"conversionMetrics.txt" );        
@@ -456,7 +455,7 @@ public class XSQFile {
         
         try {
             FileWriter  fstream = new FileWriter(metricsFile, appendMetricsToExistingFile);
-            fstream.write(metrics.toString());  
+            fstream.write(metricsString.toString());  
              fstream.close();
         } catch (IOException ex) {
             Logger.getLogger(XSQFile.class.getName()).log(Level.SEVERE, null, ex);

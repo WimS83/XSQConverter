@@ -49,7 +49,8 @@ public class FastQWriter {
        
         createOutputDir(baseOutputDir, writerId);   
         
-    }    
+    } 
+    
     
     /**
      * Creates a output directory for the library being processed
@@ -89,7 +90,7 @@ public class FastQWriter {
     /**
      * Set the output buffer to write to a next file (chunk)
      */
-    public void setWriterToNextChunk()
+    private void setWriterToNextChunk()
     {
         chunkCounter++;
         StringBuilder chunkFileName = new StringBuilder();
@@ -119,9 +120,7 @@ public class FastQWriter {
      * @param fastQEntry the fastq entry to write
      */
     public void writeFastQEntry(CSFastQEntryInterface fastQEntry) {
-        try {
-            
-            if(readCounter==0){setWriterToNextChunk();}
+        try {   
             
             fastQEntry.setSeqName(fastQEntry.getSeqName()+"_"+readCounter );            
 
@@ -166,6 +165,10 @@ public class FastQWriter {
 
     public long getReadCounter() {
         return readCounter;
+    }
+
+    public void openFastQFileForWriting() {
+        setWriterToNextChunk();
     }
     
     

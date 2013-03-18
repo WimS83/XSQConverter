@@ -24,6 +24,8 @@ public class ProcessingOptions {
     
     private Boolean overwriteExistingOutput = false;
     
+    private Integer readLenghtOutputCutoff;
+    
     //subset     
     private Boolean barCodeSubset = false;   
     private Map<Integer, Integer> barcodesSubsetList;
@@ -148,6 +150,16 @@ public class ProcessingOptions {
     public void setOverwriteExistingOutput(Boolean overwriteExistingOutput) {
         this.overwriteExistingOutput = overwriteExistingOutput;
     }
+
+    public Integer getReadLenghtOutputCutoff() {
+        return readLenghtOutputCutoff;
+    }
+
+    public void setReadLenghtOutputCutoff(Integer readLenghtOutputCutoff) {
+        this.readLenghtOutputCutoff = readLenghtOutputCutoff;
+    }
+    
+    
     
     
     

@@ -48,6 +48,7 @@ public class XSQConverterJava {
         options.addOption("h","help", false, "print this message");
         options.addOption("w","overwrite", false, "overwrite existing output. By default libraries for which existing output is present are skipped. ");
         options.addOption("u","use-barcode-name", false, "use barcode in the output names. Should always be used when processing multiple unassigned libraries by barcode because they have the same name.");
+        options.addOption("x","read-lenght-cutoff", true, "Only output reads untill this cutoff. Works on all tags.");
         
         ProcessingOptions processingOptions = new ProcessingOptions();
         
@@ -125,6 +126,9 @@ public class XSQConverterJava {
             processingOptions.setBarCodeSubset(true);
             processingOptions.setBarcodesSubsetList(barcodeSubset);
         }
+        
+        Integer readLenghtCutoff = new Integer(cmd.getOptionValue("x", "1000000000"));
+        processingOptions.setReadLenghtOutputCutoff(readLenghtCutoff);
         
         System.out.println("Input file = " + xsqFilePath);
         System.out.println("Output directory = " + outputPath);

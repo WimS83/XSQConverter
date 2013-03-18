@@ -16,6 +16,8 @@ public interface CSFastQEntryInterface {
     
     void setReadStartPosition(int readStartPosition);
     
+    void setReadLengthCutoff(int readStartPosition);
+    
     String getSeqName();
     
     String getSeq();

@@ -11,6 +11,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 
     
@@ -86,14 +88,15 @@ public class OutPutWriter {
         
         if(processingOptions.getMatePairBarcodeRun())
         {
-            cSFastQEntry.setReadStartPosition(1+processingOptions.getMatePairBarCodeLength());
-        
+            cSFastQEntry.setReadStartPosition(1+processingOptions.getMatePairBarCodeLength());    
         }
         else
         {
             cSFastQEntry.setReadStartPosition(1);
         
         }
+        
+        cSFastQEntry.setReadLengthCutoff(processingOptions.getReadLenghtOutputCutoff());
         
         return cSFastQEntry;
     }
@@ -291,7 +294,7 @@ public class OutPutWriter {
 
             String barcodeName = getMPBarcodeName(fastQEntry);                
 
-            fastQWriter = matePairBarCodeSpecificWriters.get(barcodeName+"R3");
+            fastQWriter = matePairBarCodeSpecificWriters.get(barcodeName+"_R3");
             r3ReadNrBarCodeMap.put(r3Counter, barcodeName);
             r3Counter++;
 
@@ -300,7 +303,7 @@ public class OutPutWriter {
          else
          {
             String barcodeName = r3ReadNrBarCodeMap.get(f3Counter);
-            fastQWriter = matePairBarCodeSpecificWriters.get(barcodeName+"F3");
+            fastQWriter = matePairBarCodeSpecificWriters.get(barcodeName+"_F3");
             f3Counter++;
          }
          return fastQWriter;
@@ -312,27 +315,27 @@ public class OutPutWriter {
         
         for(String barcodeName : matePairBarCodeMap.values())
         {
-            if(!matePairBarCodeSpecificWriters.containsKey(barcodeName+"F3"))
+            if(!matePairBarCodeSpecificWriters.containsKey(barcodeName+"_F3"))
             {
-                FastQWriter f3FastQWriter = new FastQWriter(barcodeName+"F3", processingOptions.getOutputDir(), processingOptions.getChunkSize());
-                matePairBarCodeSpecificWriters.put(barcodeName+"F3", f3FastQWriter);
+                FastQWriter f3FastQWriter = new FastQWriter(barcodeName+"_F3", processingOptions.getOutputDir(), processingOptions.getChunkSize());
+                matePairBarCodeSpecificWriters.put(barcodeName+"_F3", f3FastQWriter);
                 
-                FastQWriter r3FastQWriter = new FastQWriter(barcodeName+"R3", processingOptions.getOutputDir(), processingOptions.getChunkSize());
-                matePairBarCodeSpecificWriters.put(barcodeName+"R3", r3FastQWriter);
+                FastQWriter r3FastQWriter = new FastQWriter(barcodeName+"_R3", processingOptions.getOutputDir(), processingOptions.getChunkSize());
+                matePairBarCodeSpecificWriters.put(barcodeName+"_R3", r3FastQWriter);
             }
         }
         
-        FastQWriter f3NoBarcodeMatchFastQWriter = new FastQWriter("noBarcodeMatchF3", processingOptions.getOutputDir(), processingOptions.getChunkSize());
-        matePairBarCodeSpecificWriters.put("noBarcodeMatchF3", f3NoBarcodeMatchFastQWriter);
+        FastQWriter f3NoBarcodeMatchFastQWriter = new FastQWriter("noBarcodeMatch_F3", processingOptions.getOutputDir(), processingOptions.getChunkSize());
+        matePairBarCodeSpecificWriters.put("noBarcodeMatch_F3", f3NoBarcodeMatchFastQWriter);
 
-        FastQWriter r3NoBarcodeMatchFastQWriter = new FastQWriter("noBarcodeMatchR3", processingOptions.getOutputDir(), processingOptions.getChunkSize());
-        matePairBarCodeSpecificWriters.put("noBarcodeMatchR3", r3NoBarcodeMatchFastQWriter);
+        FastQWriter r3NoBarcodeMatchFastQWriter = new FastQWriter("noBarcodeMatch_R3", processingOptions.getOutputDir(), processingOptions.getChunkSize());
+        matePairBarCodeSpecificWriters.put("noBarcodeMatch_R3", r3NoBarcodeMatchFastQWriter);
         
-        FastQWriter f3MultipleBarcodeMatchFastQWriter = new FastQWriter("multipleBarcodeMatchF3", processingOptions.getOutputDir(), processingOptions.getChunkSize());
-        matePairBarCodeSpecificWriters.put("multipleBarcodeMatchF3", f3MultipleBarcodeMatchFastQWriter);
+        FastQWriter f3MultipleBarcodeMatchFastQWriter = new FastQWriter("multipleBarcodeMatch_F3", processingOptions.getOutputDir(), processingOptions.getChunkSize());
+        matePairBarCodeSpecificWriters.put("multipleBarcodeMatch_F3", f3MultipleBarcodeMatchFastQWriter);
 
-        FastQWriter r3MultipleBarcodeMatchFastQWriter = new FastQWriter("multipleBarcodeMatchR3", processingOptions.getOutputDir(), processingOptions.getChunkSize());
-        matePairBarCodeSpecificWriters.put("multipleBarcodeMatchR3", r3MultipleBarcodeMatchFastQWriter);
+        FastQWriter r3MultipleBarcodeMatchFastQWriter = new FastQWriter("multipleBarcodeMatch_R3", processingOptions.getOutputDir(), processingOptions.getChunkSize());
+        matePairBarCodeSpecificWriters.put("multipleBarcodeMatch_R3", r3MultipleBarcodeMatchFastQWriter);
         
         
         
@@ -406,6 +409,48 @@ public class OutPutWriter {
             exitingOutputFileOrDir.delete();
         }
     }
+
+    public SortedMap getMetrics() {
+        
+        SortedMap metricsMap = new TreeMap<String, String>();
+        
+        for(FastQWriter fastQWriter: getFastQWriters())        {
+                       
+           metricsMap.put(fastQWriter.getWriterId(), Long.toString(fastQWriter.getReadCounter()) );             
+           
+           System.out.println("Processed tag "+ fastQWriter.getWriterId() + " with "+fastQWriter.getReadCounter()+" reads");  
+        }
+        
+        return metricsMap;
+        
+    }
+
+    public void removeFastQWriters(Library library) {
+        
+        for(String tag : tagNameLengthMap.keySet())
+        {
+            String writerId = library.getNameAndBarCode()+"_"+tag;
+            
+            if(processingOptions.getMatePairBarcodeRun())
+            {
+                matePairBarCodeSpecificWriters.remove(writerId);
+            }
+            else
+            {
+                libraryAndTagSpecificWriters.remove(writerId);
+            }           
+        }
+        
+    }
+
+    public void openFastQFilesForWriting() {
+        for(FastQWriter fastQWriter :getFastQWriters())
+        {
+            fastQWriter.openFastQFileForWriting();
+        }
+    }
+
+    
 
    
 
