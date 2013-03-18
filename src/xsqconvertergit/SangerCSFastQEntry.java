@@ -10,7 +10,7 @@ import java.util.HashMap;
  * BWA specific Color Space FastQ entries
  * @author Wim Spee
  */
-public class CSFastQEntry implements CSFastQEntryInterface {
+public class SangerCSFastQEntry implements CSFastQEntryInterface {
 
     
     private HashMap<Integer, Character> intToCharMap = null;   
@@ -26,7 +26,7 @@ public class CSFastQEntry implements CSFastQEntryInterface {
     private Integer readLengthCutoff = null;
     
     
-    public CSFastQEntry()    
+    public SangerCSFastQEntry()    
     {        
         intToCharMap = new HashMap<Integer,Character>();
         intToCharMap.put(0, '0');

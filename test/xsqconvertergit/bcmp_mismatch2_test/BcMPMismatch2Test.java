@@ -20,7 +20,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import xsqconvertergit.XSQConverterJava;
+import xsqconvertergit.XSQConverterGit;
 
 /**
  *
@@ -70,7 +70,7 @@ public class BcMPMismatch2Test {
         arguments.add("2");        
         
           
-        XSQConverterJava.main(arguments.toArray(new String[0]));
+        XSQConverterGit.main(arguments.toArray(new String[0]));
         
     }
     

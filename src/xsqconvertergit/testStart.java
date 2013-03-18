@@ -38,7 +38,7 @@ public class testStart {
         
 
         
-        XSQConverterJava.main(arguments.toArray(new String[0]));
+        XSQConverterGit.main(arguments.toArray(new String[0]));
     }
     
 }

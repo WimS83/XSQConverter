@@ -96,7 +96,7 @@ public class Tags {
         try {
              byteArray = readsAndQuals.readBytes();
         } catch (HDF5Exception ex) {
-            Logger.getLogger(XSQConverterJava.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(XSQConverterGit.class.getName()).log(Level.SEVERE, null, ex);
         }
         return byteArray;
     }    

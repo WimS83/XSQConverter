@@ -22,7 +22,7 @@ import org.apache.commons.io.FilenameUtils;
  *
  * @author Wim Spee
  */
-public class XSQConverterJava {
+public class XSQConverterGit {
 
         
     //private static File outputDir = null;  
@@ -57,7 +57,7 @@ public class XSQConverterJava {
         try {
             cmd = parser.parse( options, args);
         } catch (ParseException ex) {
-            Logger.getLogger(XSQConverterJava.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(XSQConverterGit.class.getName()).log(Level.SEVERE, null, ex);
         }
         
         if(cmd.hasOption("j")){ printJavaPath(); System.exit(0); }
@@ -100,9 +100,8 @@ public class XSQConverterJava {
             processingOptions.setUseBarcodeInOutputName(true);
         }
         
-        
-        if(cmd.getOptionValue("f").equalsIgnoreCase("bwa")){ processingOptions.setBwaSpecific(true); }        
-        
+        processingOptions.setFastQDialect(FastQDialect.valueOf(cmd.getOptionValue("f").toLowerCase()));        
+                     
         processingOptions.setChunkSize( new Long(cmd.getOptionValue("c", "1000000")));     
         
         String xsqFilePath = cmd.getOptionValue("i"); 
@@ -184,7 +183,8 @@ public class XSQConverterJava {
         Boolean fastQFormatIsSet = false;
         
                 if(cmd.getOptionValue("f").equalsIgnoreCase("bwa")){fastQFormatIsSet = true;}
-        if(cmd.getOptionValue("f").equalsIgnoreCase("sanger")){fastQFormatIsSet = true;}
+                if(cmd.getOptionValue("f").equalsIgnoreCase("sanger")){fastQFormatIsSet = true;}
+                if(cmd.getOptionValue("f").equalsIgnoreCase("tophat")){fastQFormatIsSet = true;}
         return fastQFormatIsSet;
         
     }

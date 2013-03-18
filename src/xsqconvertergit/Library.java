@@ -4,6 +4,8 @@
  */
 package xsqconvertergit;
 
+import java.io.File;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import ncsa.hdf.object.Attribute;
@@ -19,6 +21,10 @@ public class Library {
     
     String name = null;
     short barcode;
+    
+    Map<String, List<File>> tagFastQFileMap = new HashMap<String, List<File>>();
+
+    
     
     private enum LibraryAttributeNames  {IndexID, LibraryName};
     
@@ -51,8 +57,12 @@ public class Library {
     */
     public long processLibrary(OutPutWriter outPutWriter)
     {
-                           
+        
+        outPutWriter.getTagNames();
+        
         outPutWriter.setCurrentLibrary(this);
+        
+        
         
         List tileList = libraryGroup.getMemberList();
         int tileCounter = 0;
@@ -102,6 +112,10 @@ public class Library {
     public String getNameAndBarCode()
     {
         return name + "_" + getBarcode().toString();
+    }
+    
+    public void setWrittenFiles(String tag, List<File> fastqFiles) {
+        tagFastQFileMap.put(tag, fastqFiles);
     }
     
     

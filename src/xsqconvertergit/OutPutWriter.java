@@ -76,15 +76,22 @@ public class OutPutWriter {
     
     public CSFastQEntryInterface getNewEntry()
     {
+        
         CSFastQEntryInterface cSFastQEntry = null;
-        if(processingOptions.getBwaSpecific())
+        
+        FastQDialect fastQDialect = processingOptions.getFastQDialect();
+        switch(fastQDialect)
         {
-            cSFastQEntry = new BWACSFastQEntry();
-        }
-        else
-        {
-            cSFastQEntry= new CSFastQEntry();
-        }
+            case sanger:
+                cSFastQEntry= new SangerCSFastQEntry();
+                break;
+            case bwa:
+                cSFastQEntry = new BWACSFastQEntry();
+                break;
+            case tophat:
+                cSFastQEntry = new TophatCSFastQEntry();
+                break;
+        }  
         
         if(processingOptions.getMatePairBarcodeRun())
         {
@@ -111,7 +118,7 @@ public class OutPutWriter {
         if(processingOptions.getMatePairBarcodeRun())
         {
             
-            fastQWriter = getFastQwriterBasedOnBarcode(fastQEntry);            
+            fastQWriter = getFastQwriterBasedOnBCMPBarcode(fastQEntry);            
         }
         else
         {
@@ -126,7 +133,7 @@ public class OutPutWriter {
         
         String seq = fastQEntry.getSeq();
         
-        if(processingOptions.getBwaSpecific())
+        if(processingOptions.getFastQDialect() == FastQDialect.bwa)
         {
             seq = convertBWAToCS(seq);
         }
@@ -284,7 +291,15 @@ public class OutPutWriter {
         return libraryAndTagSpecificWriters.get(writerID);             
     }
     
-     private FastQWriter getFastQwriterBasedOnBarcode(CSFastQEntryInterface fastQEntry) {
+    
+    private FastQWriter getFastQWriterByLibraryNameAndBarcodeAndTag(String libraryNameAndBarcode, String tag) {
+        
+        String writerID = libraryNameAndBarcode + "_"+ tag;
+        return libraryAndTagSpecificWriters.get(writerID);             
+    }
+    
+    
+     private FastQWriter getFastQwriterBasedOnBCMPBarcode(CSFastQEntryInterface fastQEntry) {
         
          FastQWriter fastQWriter;
          
@@ -449,6 +464,25 @@ public class OutPutWriter {
             fastQWriter.openFastQFileForWriting();
         }
     }
+
+    public void addFastQFilesToLibrary(List<Library> libraries) {
+        
+        
+        if(processingOptions.getMatePairBarcodeRun()){return;}
+        
+        for(Library library : libraries)
+        {        
+            for(String tag : tagNameLengthMap.keySet())
+            {
+                FastQWriter fastQWriter = getFastQWriterByLibraryNameAndBarcodeAndTag(library.getNameAndBarCode(), tag);
+                List<File> fastqFiles = fastQWriter.getWrittenFiles();
+                library.setWrittenFiles(tag, fastqFiles);
+                
+            }
+        }  
+    }
+    
+    
 
     
 

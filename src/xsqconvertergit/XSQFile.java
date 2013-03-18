@@ -157,7 +157,7 @@ public class XSQFile {
            openFile2();
             rootGroup = (Group)(( DefaultMutableTreeNode)xsqFile.getRootNode()).getUserObject(); 
         } catch (Exception ex) {
-            Logger.getLogger(XSQConverterJava.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(XSQConverterGit.class.getName()).log(Level.SEVERE, null, ex);
             ex.printStackTrace();
             System.exit(1);
         } 
@@ -212,7 +212,7 @@ public class XSQFile {
      * @param outputDir the base output dir
      * @param chunkSize the chunksize to use for splitting the output fastQ files.
      */
-    public void processXSQFile( ProcessingOptions processingOptions) throws Exception 
+    public List<Library> processXSQFile( ProcessingOptions processingOptions) throws Exception 
     {
         
         this.processingOptions = processingOptions;     
@@ -241,7 +241,10 @@ public class XSQFile {
             }
         }          
                
-        processLibraries(librariesToProcess, usedTags);        
+        processLibraries(librariesToProcess, usedTags);   
+        return librariesToProcess;
+        
+        
     } 
     
     private List<Library> getLibraryByName(List<Library> libraries, Map<String, String> librariesSubSetMap) throws Exception
@@ -345,7 +348,8 @@ public class XSQFile {
            totalReadCounter += libraryReadCount;               
         }
         
-        outPutWriter.closeWriters();        
+        outPutWriter.closeWriters();
+        outPutWriter.addFastQFilesToLibrary(libraries);        
         
         
         System.out.println("Processed "+libraries.size() + " libraries and a total of "+totalReadCounter+" reads");  

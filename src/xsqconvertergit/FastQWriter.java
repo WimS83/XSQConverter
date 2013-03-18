@@ -8,6 +8,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -31,6 +32,8 @@ public class FastQWriter {
     private File outputDirReads;
     
     private String writerId;
+    
+    private List<File> writtenFastQFiles;
 
     /**
      * Writes FastQentries to an output file.
@@ -45,6 +48,8 @@ public class FastQWriter {
         
         this.chunkSize = chunkSize;
         this.writerId = writerId;
+        
+        writtenFastQFiles = new ArrayList<File>();
         
        
         createOutputDir(baseOutputDir, writerId);   
@@ -103,6 +108,7 @@ public class FastQWriter {
         
         
         File outPutChunk = new File(outputDirReads, chunkFileName.toString());
+        writtenFastQFiles.add(outPutChunk);
         FileWriter fstream;
         try {
             
@@ -110,7 +116,7 @@ public class FastQWriter {
             out = new BufferedWriter(fstream);            
             
         } catch (IOException ex) {
-            Logger.getLogger(XSQConverterJava.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(XSQConverterGit.class.getName()).log(Level.SEVERE, null, ex);
         }  
     }
 
@@ -134,7 +140,7 @@ public class FastQWriter {
             
                         
         } catch (IOException ex) {
-            Logger.getLogger(XSQConverterJava.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(XSQConverterGit.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
     
@@ -150,7 +156,7 @@ public class FastQWriter {
             }
             
         } catch (IOException ex) {
-            Logger.getLogger(XSQConverterJava.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(XSQConverterGit.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
     
@@ -169,6 +175,10 @@ public class FastQWriter {
 
     public void openFastQFileForWriting() {
         setWriterToNextChunk();
+    }
+
+    public List<File> getWrittenFiles() {
+        return writtenFastQFiles;
     }
     
     

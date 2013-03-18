@@ -19,7 +19,7 @@ public class ProcessingOptions {
     private File outputDir;
     private long chunkSize;
     
-    private Boolean bwaSpecific = false;    
+    private FastQDialect fastQDialect;    
     private Boolean useBarcodeInOutputName = false;
     
     private Boolean overwriteExistingOutput = false;
@@ -55,13 +55,14 @@ public class ProcessingOptions {
         this.chunkSize = chunkSize;
     }
 
-    public Boolean getBwaSpecific() {
-        return bwaSpecific;
+    public FastQDialect getFastQDialect() {
+        return fastQDialect;
     }
 
-    public void setBwaSpecific(Boolean bwaSpecific) {
-        this.bwaSpecific = bwaSpecific;
-    }
+    public void setFastQDialect(FastQDialect fastQDialect) {
+        this.fastQDialect = fastQDialect;
+    }    
+    
 
     public Boolean getBarCodeSubset() {
         return barCodeSubset;
