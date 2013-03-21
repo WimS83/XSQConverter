@@ -4,6 +4,7 @@
  */
 package xsqconvertergit;
 
+import xsqconvertergit.interfaces.*;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -88,8 +89,8 @@ public class OutPutWriter {
             case bwa:
                 cSFastQEntry = new BWACSFastQEntry();
                 break;
-            case tophat:
-                cSFastQEntry = new TophatCSFastQEntry();
+            case csfasta:
+                cSFastQEntry = new CSFastaQualEntry();
                 break;
         }  
         
@@ -126,7 +127,7 @@ public class OutPutWriter {
         }      
                   
         
-        fastQWriter.writeFastQEntry(fastQEntry);    
+        fastQWriter.writeFastQEntry(fastQEntry, processingOptions.getFastQDialect());    
     }
 
     private String getMPBarcodeName(CSFastQEntryInterface fastQEntry) {
@@ -461,7 +462,7 @@ public class OutPutWriter {
     public void openFastQFilesForWriting() {
         for(FastQWriter fastQWriter :getFastQWriters())
         {
-            fastQWriter.openFastQFileForWriting();
+            fastQWriter.openFastQFileForWriting(processingOptions.getFastQDialect());
         }
     }
 

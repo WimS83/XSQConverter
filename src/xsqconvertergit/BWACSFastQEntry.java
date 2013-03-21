@@ -4,6 +4,7 @@
  */
 package xsqconvertergit;
 
+import xsqconvertergit.interfaces.CSFastQEntryInterface;
 import java.util.HashMap;
 
 /**

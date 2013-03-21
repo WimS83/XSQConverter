@@ -10,6 +10,6 @@ package xsqconvertergit;
  */
 public enum FastQDialect {
     
-    sanger, bwa, tophat
+    sanger, bwa, csfasta
     
 }

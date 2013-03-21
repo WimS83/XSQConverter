@@ -42,7 +42,7 @@ public class XSQConverterGit {
         options.addOption("b","barcode", true, "barcodes which should be converted. For multiple barcodes use this argument multiple times");
         options.addOption("d","display", false, "display all libraries names and quit without processing");
         options.addOption("j","javapath", false, "display Java path");
-        options.addOption("f","fastq-dialect", true, "fastQ dialect / format. Either BWA or Sanger." );        
+        options.addOption("f","fastq-dialect", true, "fastQ dialect / format. Either BWA, Sanger or csfasta." );        
         options.addOption("m","matepair-barcode-file", true, "file with matepair bacodes. Each line should contains a barcode color space sequence and a barcode name, separated with a tab. All barcodes are required to have the same length. A output file is created for every barcode name and tag combination.  ");
         options.addOption("n","matepair-barcode-mismatches", true, "number of mismatches to be allowed for matching matepair barcodes. Default is 0.");
         options.addOption("h","help", false, "print this message");
@@ -182,9 +182,13 @@ public class XSQConverterGit {
     private static boolean fastQformatIsSpecified(CommandLine cmd) {
         Boolean fastQFormatIsSet = false;
         
-                if(cmd.getOptionValue("f").equalsIgnoreCase("bwa")){fastQFormatIsSet = true;}
-                if(cmd.getOptionValue("f").equalsIgnoreCase("sanger")){fastQFormatIsSet = true;}
-                if(cmd.getOptionValue("f").equalsIgnoreCase("tophat")){fastQFormatIsSet = true;}
+        String givenfastQDialect = cmd.getOptionValue("f");
+        
+        for(FastQDialect fastQDialect : FastQDialect.values())
+        {
+            if(givenfastQDialect.equalsIgnoreCase(fastQDialect.toString())){fastQFormatIsSet = true;}
+        }
+       
         return fastQFormatIsSet;
         
     }

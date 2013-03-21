@@ -4,6 +4,7 @@
  */
 package xsqconvertergit;
 
+import xsqconvertergit.interfaces.CSFastQEntryInterface;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -13,6 +14,7 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.commons.io.FileUtils;
+import xsqconvertergit.interfaces.FastaQualEntryInterface;
 
 /**
  * Writes FastQentries to an output file. 
@@ -24,7 +26,8 @@ public class FastQWriter {
     
     private long readCounter = new Long(0);
     private Long chunkCounter = new Long(0);
-    private BufferedWriter out = null;   
+    private BufferedWriter fastqOut = null;   
+    private BufferedWriter qualOut = null;
     
     private long chunkSize;   
     
@@ -94,38 +97,55 @@ public class FastQWriter {
     
     /**
      * Set the output buffer to write to a next file (chunk)
+     * @param fastQEntry 
      */
-    private void setWriterToNextChunk()
-    {
+    private void setWriterToNextChunk(FastQDialect fq){
         chunkCounter++;
-        StringBuilder chunkFileName = new StringBuilder();
-        chunkFileName.append("p");
-        chunkFileName.append(chunkCounter);
-        chunkFileName.append('.');
-        chunkFileName.append(writerId);
-
-        chunkFileName.append(".fastq");   
-        
-        
-        File outPutChunk = new File(outputDirReads, chunkFileName.toString());
-        writtenFastQFiles.add(outPutChunk);
-        FileWriter fstream;
-        try {
-            
-            fstream = new FileWriter(outPutChunk);
-            out = new BufferedWriter(fstream);            
-            
-        } catch (IOException ex) {
-            Logger.getLogger(XSQConverterGit.class.getName()).log(Level.SEVERE, null, ex);
+        if(fq == FastQDialect.csfasta){
+        	StringBuilder chunkFastaFileName = getChunkFileName(".csfasta");
+        	openNextChunk(chunkFastaFileName, true);
+        	StringBuilder chunkQualFileName = getChunkFileName(".qual");
+        	openNextChunk(chunkQualFileName, false);
+        }else{
+        	StringBuilder chunkFastQFileName = getChunkFileName(".fastq");
+        	openNextChunk(chunkFastQFileName, true);
         }  
     }
 
     
-    /**
+    private void openNextChunk(StringBuilder chunkFastQFileName, boolean containsSequence) {
+    	File outPutChunk = new File(outputDirReads, chunkFastQFileName.toString());
+        writtenFastQFiles.add(outPutChunk);
+        FileWriter fstream;
+        try {
+            fstream = new FileWriter(outPutChunk);
+            if(containsSequence){
+            	fastqOut = new BufferedWriter(fstream);        
+            }else{
+            	qualOut = new BufferedWriter(fstream);     
+            }
+        } catch (IOException ex) {
+            Logger.getLogger(XSQConverterGit.class.getName()).log(Level.SEVERE, null, ex);
+        }
+		
+	}
+
+	private StringBuilder getChunkFileName(String suffix) {
+    	StringBuilder chunkFileName = new StringBuilder();
+        chunkFileName.append("p");
+        chunkFileName.append(chunkCounter);
+        chunkFileName.append('.');
+        chunkFileName.append(writerId);
+        chunkFileName.append(suffix); 
+		return chunkFileName;
+	}
+
+    
+   	/**
      * Write a fastq entry to the output buffer. Adds seqName to the fastq entry. Calls setWriterToNextChunk if read counter % chunksize = 0 .
      * @param fastQEntry the fastq entry to write
      */
-    public void writeFastQEntry(CSFastQEntryInterface fastQEntry) {
+    public void writeFastQEntry(CSFastQEntryInterface fastQEntry, FastQDialect dialect) {
         try {   
             
             fastQEntry.setSeqName(fastQEntry.getSeqName()+"_"+readCounter );            
@@ -133,10 +153,14 @@ public class FastQWriter {
             if(readCounter % chunkSize == 0 && readCounter != 0)
             {
                 closeWriter();
-                setWriterToNextChunk();
+                setWriterToNextChunk(dialect);
             }            
-            out.write(fastQEntry.toString());
-            readCounter++;
+            fastqOut.write(fastQEntry.toString());
+            if(fastQEntry instanceof FastaQualEntryInterface){
+            	qualOut.write(((FastaQualEntryInterface) fastQEntry).toQualString());
+            }
+            readCounter++;           
+           
             
                         
         } catch (IOException ex) {
@@ -150,9 +174,9 @@ public class FastQWriter {
     public void closeWriter()
     {
         try {
-            if(out != null)
+            if(fastqOut != null)
             {
-                out.close();
+                fastqOut.close();
             }
             
         } catch (IOException ex) {
@@ -173,8 +197,8 @@ public class FastQWriter {
         return readCounter;
     }
 
-    public void openFastQFileForWriting() {
-        setWriterToNextChunk();
+   public void openFastQFileForWriting(FastQDialect dialect){
+		setWriterToNextChunk(dialect);
     }
 
     public List<File> getWrittenFiles() {

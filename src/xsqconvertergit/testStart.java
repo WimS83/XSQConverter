@@ -23,12 +23,14 @@ public class testStart {
     {
         
         List<String> arguments = new ArrayList<String>();
-        arguments.add("-i");
-        arguments.add("/home/wim/Analysis/xsq_converter_test_sets/./bcfrag_case/inputFiles/HU03_20121219_MaartjeChip2R_Nico_L02.xsq");
-        arguments.add("-o");
-        arguments.add("/home/wim/Analysis/xsq_converter_test_sets/bcfrag_case/outputVersionMarch2013");
-        arguments.add("-f");
-        arguments.add("BWA");  
+//        arguments.add("-i");
+//        arguments.add("/home/wim/Analysis/xsq_converter_test_sets/./bcfrag_case/inputFiles/HU03_20121219_MaartjeChip2R_Nico_L02.xsq");
+//        arguments.add("-o");
+//        arguments.add("/home/wim/Analysis/xsq_converter_test_sets/bcfrag_case/outputVersionMarch2013");
+//        arguments.add("-f");
+//        arguments.add("BWA");  
+                arguments.add("-j");
+        
         
              
         

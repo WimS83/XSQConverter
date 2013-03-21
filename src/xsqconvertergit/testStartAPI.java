@@ -26,7 +26,7 @@ public class testStartAPI {
         XSQFile xSQFile = new XSQFile("/home/wim/Analysis/xsq_converter_test_sets/bcfrag_case/inputFiles/HU03_20121219_MaartjeChip2R_Nico_minimalTest_L02.xsq");
                
         ProcessingOptions processingOptions = new ProcessingOptions();
-        processingOptions.setFastQDialect(FastQDialect.tophat);
+        processingOptions.setFastQDialect(FastQDialect.csfasta);
         processingOptions.setChunkSize(new Long(1000000000));
         processingOptions.setMatePairBarcodeRun(false);    
         processingOptions.setReadLenghtOutputCutoff(1000000);
