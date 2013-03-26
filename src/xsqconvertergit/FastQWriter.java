@@ -177,7 +177,14 @@ public class FastQWriter {
             if(fastqOut != null)
             {
                 fastqOut.close();
+                
             }
+            if(qualOut != null )
+            {
+                qualOut.close();
+            }
+            
+            
             
         } catch (IOException ex) {
             Logger.getLogger(XSQConverterGit.class.getName()).log(Level.SEVERE, null, ex);
