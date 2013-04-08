@@ -37,6 +37,8 @@ public class FastQWriter {
     private String writerId;
     
     private List<File> writtenFastQFiles;
+    
+    private Boolean resetReadStartPositionsTo1 = false;
 
     /**
      * Writes FastQentries to an output file.
@@ -148,7 +150,12 @@ public class FastQWriter {
     public void writeFastQEntry(CSFastQEntryInterface fastQEntry, FastQDialect dialect) {
         try {   
             
-            fastQEntry.setSeqName(fastQEntry.getSeqName()+"_"+readCounter );            
+            fastQEntry.setSeqName(fastQEntry.getSeqName()+"_"+readCounter );
+            
+            if(resetReadStartPositionsTo1)
+            {
+                fastQEntry.setReadStartPosition(1);
+            }   
 
             if(readCounter % chunkSize == 0 && readCounter != 0)
             {
@@ -211,6 +218,12 @@ public class FastQWriter {
     public List<File> getWrittenFiles() {
         return writtenFastQFiles;
     }
+
+    public void setResetReadStartPositionsTo1(Boolean resetReadStartPositionsTo1) {
+        this.resetReadStartPositionsTo1 = resetReadStartPositionsTo1;
+    }
+    
+    
     
     
     

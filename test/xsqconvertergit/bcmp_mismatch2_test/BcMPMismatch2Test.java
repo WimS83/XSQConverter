@@ -52,7 +52,7 @@ public class BcMPMismatch2Test {
         testConversionMetricsFile = new File(testXSQOutputDir, "conversionMetrics.txt");
         
         tags = Arrays.asList(new String[]{"R3","F3"}); 
-        libraries = Arrays.asList(new String[]{"1","2","3","4","5","6","7","8","9","10","11","12","13","14"});           
+        libraries = Arrays.asList(new String[]{"1","2","3","4","5","6","7","8","9","10","11","12","13","14","multipleBarcodeMatch","noBarcodeMatch"});           
         
         String testXSQFilePath = BcMPMismatch2Test.class.getResource(XSQbaseName+".xsq").getFile();
         String bcmpFilePath = BcMPMismatch2Test.class.getResource("BC_setIA_2.txt").getFile();
