@@ -96,7 +96,15 @@ public class OutPutWriter {
         
         if(processingOptions.getMatePairBarcodeRun())
         {
-            cSFastQEntry.setReadStartPosition(1+processingOptions.getMatePairBarCodeLength());    
+            if(currentTagName.equalsIgnoreCase("R3"))
+            {
+                cSFastQEntry.setReadStartPosition(1+processingOptions.getMatePairBarCodeLength());    
+            }
+            else
+            {
+                 cSFastQEntry.setReadStartPosition(1);
+            }
+            
         }
         else
         {

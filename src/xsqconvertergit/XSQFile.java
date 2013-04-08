@@ -456,6 +456,9 @@ public class XSQFile {
         
         Boolean appendMetricsToExistingFile = processingOptions.getOverwriteExistingOutput()==false;
         
+        System.out.println("Metrics file content:");
+        System.out.println(metricsString.toString());
+        
         
         try {
             FileWriter  fstream = new FileWriter(metricsFile, appendMetricsToExistingFile);
