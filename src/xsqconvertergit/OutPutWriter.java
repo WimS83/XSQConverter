@@ -146,7 +146,8 @@ public class OutPutWriter {
         if(processingOptions.getFastQDialect() == FastQDialect.bwa)
         {
             seq = convertBWAToCS(seq);
-        }
+        }        
+       
         
         List<String> barcodeNamesMatched = new ArrayList<String>();
         String barcodeName = "";
@@ -351,19 +352,19 @@ public class OutPutWriter {
         }
         
         FastQWriter f3NoBarcodeMatchFastQWriter = new FastQWriter("noBarcodeMatch_F3", processingOptions.getOutputDir(), processingOptions.getChunkSize());
-        f3NoBarcodeMatchFastQWriter.setResetReadStartPositionsTo1(true);
+        f3NoBarcodeMatchFastQWriter.setResetReadStartPositionsTo0(true);
         matePairBarCodeSpecificWriters.put("noBarcodeMatch_F3", f3NoBarcodeMatchFastQWriter);
 
         FastQWriter r3NoBarcodeMatchFastQWriter = new FastQWriter("noBarcodeMatch_R3", processingOptions.getOutputDir(), processingOptions.getChunkSize());
-        r3NoBarcodeMatchFastQWriter.setResetReadStartPositionsTo1(true);
+        r3NoBarcodeMatchFastQWriter.setResetReadStartPositionsTo0(true);
         matePairBarCodeSpecificWriters.put("noBarcodeMatch_R3", r3NoBarcodeMatchFastQWriter);
         
         FastQWriter f3MultipleBarcodeMatchFastQWriter = new FastQWriter("multipleBarcodeMatch_F3", processingOptions.getOutputDir(), processingOptions.getChunkSize());
-        f3MultipleBarcodeMatchFastQWriter.setResetReadStartPositionsTo1(true);
+        f3MultipleBarcodeMatchFastQWriter.setResetReadStartPositionsTo0(true);
         matePairBarCodeSpecificWriters.put("multipleBarcodeMatch_F3", f3MultipleBarcodeMatchFastQWriter);
 
         FastQWriter r3MultipleBarcodeMatchFastQWriter = new FastQWriter("multipleBarcodeMatch_R3", processingOptions.getOutputDir(), processingOptions.getChunkSize());
-        r3MultipleBarcodeMatchFastQWriter.setResetReadStartPositionsTo1(true);
+        r3MultipleBarcodeMatchFastQWriter.setResetReadStartPositionsTo0(true);
         matePairBarCodeSpecificWriters.put("multipleBarcodeMatch_R3", r3MultipleBarcodeMatchFastQWriter);
         
         

@@ -38,7 +38,7 @@ public class FastQWriter {
     
     private List<File> writtenFastQFiles;
     
-    private Boolean resetReadStartPositionsTo1 = false;
+    private Boolean resetReadStartPositionsTo0 = false;
 
     /**
      * Writes FastQentries to an output file.
@@ -89,7 +89,7 @@ public class FastQWriter {
     public boolean checkForExistingOutput() {
         
         //check if there are already fastq files in the outputDir and it's subdirectories
-        String[] extensions = new String[]{"fastq"};
+        String[] extensions = new String[]{"fastq", "csfasta"};
         List<File> fastqFiles = (List<File>) FileUtils.listFiles(outputDirReads, extensions, true);
         
         return !fastqFiles.isEmpty();  
@@ -152,9 +152,9 @@ public class FastQWriter {
             
             fastQEntry.setSeqName(fastQEntry.getSeqName()+"_"+readCounter );
             
-            if(resetReadStartPositionsTo1)
+            if(resetReadStartPositionsTo0)
             {
-                fastQEntry.setReadStartPosition(1);
+                fastQEntry.setReadStartPosition(0);
             }   
 
             if(readCounter % chunkSize == 0 && readCounter != 0)
@@ -219,8 +219,8 @@ public class FastQWriter {
         return writtenFastQFiles;
     }
 
-    public void setResetReadStartPositionsTo1(Boolean resetReadStartPositionsTo1) {
-        this.resetReadStartPositionsTo1 = resetReadStartPositionsTo1;
+    public void setResetReadStartPositionsTo0(Boolean resetReadStartPositionsTo0) {
+        this.resetReadStartPositionsTo0 = resetReadStartPositionsTo0;
     }
     
     

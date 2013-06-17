@@ -74,6 +74,10 @@ public class CSFastaQualEntry implements FastaQualEntryInterface {
         char csValue = convertCSIntToCSChar(csInt);
         String qValue = convertQualToBWAQual(qInt); 
         
+        if(qInt == 63)
+        {
+            csValue = '.';
+        }
         
         readCSSb.append(csValue);
         readQvalues.add(qValue);

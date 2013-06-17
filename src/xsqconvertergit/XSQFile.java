@@ -169,7 +169,7 @@ public class XSQFile {
     }    
     
     
-    private Map<String, String> getLibraryNames() throws HDF5Exception 
+    public Map<String, String> getLibraryNames() throws HDF5Exception 
     {
         Group runMetadataGroup = getReservedGroup(rootGroup, ReservedNames.RunMetadata);
         
