@@ -37,7 +37,7 @@ public class OutPutWriter {
     private Long f3Counter = new Long(1);
     private  Long r3Counter = new Long(1);   
     
-    private Map<Long, String> r3ReadNrBarCodeMap;
+    private Map<Long, String> readNrBarCodeMap;
     
     private Map<Character, Character> BWAToCSMap;
      
@@ -219,7 +219,7 @@ public class OutPutWriter {
         f3Counter = new Long(1);
         r3Counter = new Long (1);
         
-        r3ReadNrBarCodeMap = new HashMap<Long, String>();
+        readNrBarCodeMap = new HashMap<Long, String>();
     }
 
     public void setCurrentTagName(String currentTagName) {
@@ -310,30 +310,54 @@ public class OutPutWriter {
     }
     
     
+//     private FastQWriter getFastQwriterBasedOnBCMPBarcode(CSFastQEntryInterface fastQEntry) {
+//        
+//         FastQWriter fastQWriter;
+//         
+//         //if the tag is R3, look up the writer based on the barcode in the read
+//         if(currentTagName.equalsIgnoreCase("R3"))
+//         {
+//
+//            String barcodeName = getMPBarcodeName(fastQEntry);                
+//
+//            fastQWriter = matePairBarCodeSpecificWriters.get(barcodeName+"_R3");
+//            readNrBarCodeMap.put(r3Counter, barcodeName);
+//            r3Counter++;
+//
+//         }
+//         //if the tag is F3, look up the writer based on where the R3 mate read was written
+//         else
+//         {
+//            String barcodeName = readNrBarCodeMap.get(f3Counter);
+//            fastQWriter = matePairBarCodeSpecificWriters.get(barcodeName+"_F3");
+//            f3Counter++;
+//         }
+//         return fastQWriter;
+//    }
+     
      private FastQWriter getFastQwriterBasedOnBCMPBarcode(CSFastQEntryInterface fastQEntry) {
         
          FastQWriter fastQWriter;
          
-         //if the tag is R3, look up the writer based on the barcode in the read
+         //if the tag is R3, look up the writer based on where the F3 mate read was written
          if(currentTagName.equalsIgnoreCase("R3"))
          {
-
-            String barcodeName = getMPBarcodeName(fastQEntry);                
-
-            fastQWriter = matePairBarCodeSpecificWriters.get(barcodeName+"_R3");
-            r3ReadNrBarCodeMap.put(r3Counter, barcodeName);
+            String barcodeName = readNrBarCodeMap.get(r3Counter);
+            fastQWriter = matePairBarCodeSpecificWriters.get(barcodeName+"_R3"); 
             r3Counter++;
 
          }
-         //if the tag is F3, look up the writer based on where the R3 mate read was written
+         //if the tag is F3, look up the writer based on the barcode in the read
          else
          {
-            String barcodeName = r3ReadNrBarCodeMap.get(f3Counter);
+            String barcodeName = getMPBarcodeName(fastQEntry);                
+
             fastQWriter = matePairBarCodeSpecificWriters.get(barcodeName+"_F3");
+            readNrBarCodeMap.put(f3Counter, barcodeName);
             f3Counter++;
          }
          return fastQWriter;
-    }
+    } 
 
     private void createMatePairBarcodeSpecificWriters(Map<String, String> matePairBarCodeMap) {
         

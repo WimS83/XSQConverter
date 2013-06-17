@@ -34,9 +34,9 @@ public class Tile {
         outPutWriter.resetTileReadCounters();
         
         List tagList = tileGroup.getMemberList();  
-        Collections.reverse(tagList);
+      //  Collections.reverse(tagList);
                         
-        long readCounter = 0;
+        long readCounter = 0;       
         
         for(Object tileMember : tagList)
         {
