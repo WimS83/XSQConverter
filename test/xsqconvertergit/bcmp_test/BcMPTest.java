@@ -64,7 +64,10 @@ public class BcMPTest {
         arguments.add("-f");
         arguments.add("BWA");
         arguments.add("-m");
-        arguments.add(bcmpFilePath);        
+        arguments.add(bcmpFilePath);  
+        arguments.add("-mpbl");
+        arguments.add("R3");
+              
         
           
         XSQConverterGit.main(arguments.toArray(new String[0]));

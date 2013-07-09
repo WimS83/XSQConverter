@@ -67,7 +67,9 @@ public class BcMPMismatch2Test {
         arguments.add("-m");
         arguments.add(bcmpFilePath);        
         arguments.add("-n");
-        arguments.add("2");        
+        arguments.add("2");   
+        arguments.add("-mpbl");
+        arguments.add("R3");
         
           
         XSQConverterGit.main(arguments.toArray(new String[0]));

@@ -10,59 +10,62 @@ import ncsa.hdf.object.Group;
 
 /**
  * Object containing a XSQ tile node and a function to process it.
+ *
  * @author Wim Spee
  */
 public class Tile {
 
-    Group tileGroup = null;   
-    
+    Group tileGroup = null;
+
     public Tile(Group tileGroup) {
-        this.tileGroup = tileGroup;        
-       
-    }    
-    
-    
+        this.tileGroup = tileGroup;
+
+    }
+
     /**
      * Process the tile.
-     * @param fastQWriterPerTag a map containing a fastqWriter per tag that should be in the tile. Based on which tag is being processed a fastqWriter is retrieved from this map.
-     * @return 
+     *
+     * @param fastQWriterPerTag a map containing a fastqWriter per tag that
+     * should be in the tile. Based on which tag is being processed a
+     * fastqWriter is retrieved from this map.
+     * @return
      */
-    public long processTile(OutPutWriter outPutWriter)
-    {
-        
+    public long processTile(OutPutWriter outPutWriter) {
+
         outPutWriter.setCurrentTileName(tileGroup.getName());
         outPutWriter.resetTileReadCounters();
-        
-        List tagList = tileGroup.getMemberList();  
-      //  Collections.reverse(tagList);
-                        
-        long readCounter = 0;       
-        
-        for(Object tileMember : tagList)
-        {
-           String tileMemberName = tileMember.toString();
-           
-            
-           Boolean matchUsedtags= false;
-           for(String usedTag : outPutWriter.getTagNames())
-           {
-               if(tileMemberName.equalsIgnoreCase(usedTag))
-               {
-                   matchUsedtags = true; 
-                   break;
-               }                   
-           }
-           
-           if(matchUsedtags)
-           {
-               Group fragmentGroup = (Group)tileMember;
-               Tags tag = new Tags(fragmentGroup, outPutWriter.getTagLength(tileMemberName));
-               readCounter += tag.processTag(outPutWriter);
-           }
+
+        List tagList = tileGroup.getMemberList();
+
+        //if the first tag in the list is not the tag that contains the barcode, reverse the list. So that the tag with the barcode is always processed first.
+        if (outPutWriter.getProcessingOptions().getMatePairBarcodeRun()) {
+            if (!tagList.get(0).toString().equalsIgnoreCase(outPutWriter.getProcessingOptions().getMatePairBarcodeLocationEnum().toString())) {
+                Collections.reverse(tagList);
+            }
         }
-        System.out.print("\rProcessed tile "+ tileGroup.getName());         
+
+
+        long readCounter = 0;
+
+        for (Object tileMember : tagList) {
+            String tileMemberName = tileMember.toString();
+
+
+            Boolean matchUsedtags = false;
+            for (String usedTag : outPutWriter.getTagNames()) {
+                if (tileMemberName.equalsIgnoreCase(usedTag)) {
+                    matchUsedtags = true;
+                    break;
+                }
+            }
+
+            if (matchUsedtags) {
+                Group fragmentGroup = (Group) tileMember;
+                Tags tag = new Tags(fragmentGroup, outPutWriter.getTagLength(tileMemberName));
+                readCounter += tag.processTag(outPutWriter);
+            }
+        }
+        System.out.print("\rProcessed tile " + tileGroup.getName());
         return readCounter;
     }
-    
-    
 }

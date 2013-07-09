@@ -38,6 +38,8 @@ public class ProcessingOptions {
     private Map<String, String> matePairBarcodeMap;
     private Integer MPBCMismatchesAllowed;
     private Integer matePairBarCodeLength;
+    private MatePairBarcodeLocationEnum matePairBarcodeLocationEnum;
+    
 
     public File getOutputDir() {
         return outputDir;
@@ -143,6 +145,16 @@ public class ProcessingOptions {
     public void setMatePairBarCodeLength(Integer matePairBarCodeLength) {
         this.matePairBarCodeLength = matePairBarCodeLength;
     }
+
+    public MatePairBarcodeLocationEnum getMatePairBarcodeLocationEnum() {
+        return matePairBarcodeLocationEnum;
+    }
+
+    public void setMatePairBarcodeLocationEnum(MatePairBarcodeLocationEnum matePairBarcodeLocationEnum) {
+        this.matePairBarcodeLocationEnum = matePairBarcodeLocationEnum;
+    }
+    
+    
 
     public Boolean getOverwriteExistingOutput() {
         return overwriteExistingOutput;

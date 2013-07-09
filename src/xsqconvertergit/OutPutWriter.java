@@ -33,9 +33,12 @@ public class OutPutWriter {
     private List<Library> libraries;
     private Map<String, Integer> tagNameLengthMap;    
    
+    private Long mpTagWithBarcodeReadCounter = new Long(1);
+    private Long mpTagWithoutBarcodeReadCounter = new Long(1);  
     
-    private Long f3Counter = new Long(1);
-    private  Long r3Counter = new Long(1);   
+    
+   // private Long f3Counter = new Long(1);
+   // private  Long r3Counter = new Long(1);   
     
     private Map<Long, String> readNrBarCodeMap;
     
@@ -96,7 +99,7 @@ public class OutPutWriter {
         
         if(processingOptions.getMatePairBarcodeRun())
         {
-            if(currentTagName.equalsIgnoreCase("R3"))
+            if(currentTagName.equalsIgnoreCase(processingOptions.getMatePairBarcodeLocationEnum().toString()))
             {
                 cSFastQEntry.setReadStartPosition(1+processingOptions.getMatePairBarCodeLength());    
             }
@@ -216,8 +219,8 @@ public class OutPutWriter {
     
     public void resetTileReadCounters()
     {
-        f3Counter = new Long(1);
-        r3Counter = new Long (1);
+        mpTagWithBarcodeReadCounter = new Long(1);
+        mpTagWithoutBarcodeReadCounter = new Long (1);
         
         readNrBarCodeMap = new HashMap<Long, String>();
     }
@@ -337,25 +340,43 @@ public class OutPutWriter {
      
      private FastQWriter getFastQwriterBasedOnBCMPBarcode(CSFastQEntryInterface fastQEntry) {
         
-         FastQWriter fastQWriter;
-         
-         //if the tag is R3, look up the writer based on where the F3 mate read was written
-         if(currentTagName.equalsIgnoreCase("R3"))
+         String barcodeName;
+         FastQWriter fastQWriter;         
+        
+         //if this is the tag in which the barcode is located. Extract the barcode from the read and store read number with the barcodename. 
+         //Return the fastqwriter for this barcode
+         if(currentTagName.equalsIgnoreCase(processingOptions.getMatePairBarcodeLocationEnum().toString()))
          {
-            String barcodeName = readNrBarCodeMap.get(r3Counter);
-            fastQWriter = matePairBarCodeSpecificWriters.get(barcodeName+"_R3"); 
-            r3Counter++;
-
+             barcodeName = getMPBarcodeName(fastQEntry);                
+             readNrBarCodeMap.put(mpTagWithBarcodeReadCounter, barcodeName);
+             mpTagWithBarcodeReadCounter++;   
          }
-         //if the tag is F3, look up the writer based on the barcode in the read
+         //if this is the tag in which the barcode is not located. Lookup based on read number what the barcode was in the read in from the other tag     
          else
          {
-            String barcodeName = getMPBarcodeName(fastQEntry);                
-
-            fastQWriter = matePairBarCodeSpecificWriters.get(barcodeName+"_F3");
-            readNrBarCodeMap.put(f3Counter, barcodeName);
-            f3Counter++;
+             barcodeName = readNrBarCodeMap.get(mpTagWithoutBarcodeReadCounter);  
+             mpTagWithoutBarcodeReadCounter++;
          }
+         
+         fastQWriter = matePairBarCodeSpecificWriters.get(barcodeName+"_"+currentTagName); 
+         
+//         //if the tag is R3, look up the writer based on where the F3 mate read was written
+//         if(currentTagName.equalsIgnoreCase("R3"))
+//         {
+//            String barcodeName = readNrBarCodeMap.get(r3Counter);
+//            fastQWriter = matePairBarCodeSpecificWriters.get(barcodeName+"_R3"); 
+//            r3Counter++;
+//
+//         }
+//         //if the tag is F3, look up the writer based on the barcode in the read
+//         else
+//         {
+//            String barcodeName = getMPBarcodeName(fastQEntry);                
+//
+//            fastQWriter = matePairBarCodeSpecificWriters.get(barcodeName+"_F3");
+//            readNrBarCodeMap.put(f3Counter, barcodeName);
+//            f3Counter++;
+//         }
          return fastQWriter;
     } 
 
@@ -520,6 +541,16 @@ public class OutPutWriter {
             }
         }  
     }
+
+    public ProcessingOptions getProcessingOptions() {
+        return processingOptions;
+    }
+
+    public void setProcessingOptions(ProcessingOptions processingOptions) {
+        this.processingOptions = processingOptions;
+    }
+    
+    
     
     
 

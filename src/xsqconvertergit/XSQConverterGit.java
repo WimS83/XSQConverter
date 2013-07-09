@@ -26,6 +26,8 @@ public class XSQConverterGit {
 
         
     //private static File outputDir = null;  
+    
+    private static String version = "v10:03-07-2013";
        
     
     /**
@@ -45,6 +47,7 @@ public class XSQConverterGit {
         options.addOption("f","fastq-dialect", true, "fastQ dialect / format. Either BWA, Sanger or csfasta." );        
         options.addOption("m","matepair-barcode-file", true, "file with matepair bacodes. Each line should contains a barcode color space sequence and a barcode name, separated with a tab. All barcodes are required to have the same length. A output file is created for every barcode name and tag combination.  ");
         options.addOption("n","matepair-barcode-mismatches", true, "number of mismatches to be allowed for matching matepair barcodes. Default is 0.");
+        options.addOption("mpbl", true, "The location of the matepair barcode sequence. Either F3 or R3. Default is F3");
         options.addOption("h","help", false, "print this message");
         options.addOption("w","overwrite", false, "overwrite existing output. By default libraries for which existing output is present are skipped. ");
         options.addOption("u","use-barcode-name", false, "use barcode in the output names. Should always be used when processing multiple unassigned libraries by barcode because they have the same name.");
@@ -93,6 +96,9 @@ public class XSQConverterGit {
             processingOptions.setMatePairBarcodeRun(true);
             processingOptions.setMPBCMismatchesAllowed(MPBCMismatchesAllowed);
             processingOptions.setMatePairBarCodeLength(matePairBarCodeMap.keySet().iterator().next().length());  
+            
+            MatePairBarcodeLocationEnum matePairBarcodeLocationEnum = MatePairBarcodeLocationEnum.valueOf(cmd.getOptionValue("mpbl", "F3"));
+            processingOptions.setMatePairBarcodeLocationEnum(matePairBarcodeLocationEnum);
         }        
         
         if(cmd.hasOption("u"))
@@ -154,7 +160,7 @@ public class XSQConverterGit {
     private static void printHelp(Options options)
     {
         HelpFormatter formatter = new HelpFormatter();
-        formatter.printHelp( "XSQ converter. By default converts all XSQ libraries into CSFastQ files except the Unassigned_* and the Unclassified library. Options -i and -o are required.", options );
+        formatter.printHelp( "XSQ converter version "+version+"\n. By default converts all XSQ libraries into CSFastQ files except the Unassigned_* and the Unclassified library. Options -i and -o are required.", options );
         System.exit(1);
     }
     
