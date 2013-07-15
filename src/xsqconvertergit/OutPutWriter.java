@@ -101,7 +101,7 @@ public class OutPutWriter {
         {
             if(currentTagName.equalsIgnoreCase(processingOptions.getMatePairBarcodeLocationEnum().toString()))
             {
-                cSFastQEntry.setReadStartPosition(processingOptions.getMatePairBarCodeLength());    
+                cSFastQEntry.setReadStartPosition(1+processingOptions.getMatePairBarCodeLength());    
             }
             else
             {

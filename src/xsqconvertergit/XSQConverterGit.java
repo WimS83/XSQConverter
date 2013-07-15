@@ -27,7 +27,7 @@ public class XSQConverterGit {
         
     //private static File outputDir = null;  
     
-    private static String version = "v11:09-07-2013";
+    private static String version = "v10:03-07-2013";
        
     
     /**
