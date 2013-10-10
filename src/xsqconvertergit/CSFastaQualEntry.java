@@ -16,7 +16,7 @@ import xsqconvertergit.interfaces.CSFastQEntryInterface;
 import xsqconvertergit.interfaces.FastaQualEntryInterface;
 
 /**
- * BWA specific Color Space FastQ entries
+ * CSFasta entries
  * @author Wim Spee
  */
 public class CSFastaQualEntry implements FastaQualEntryInterface {
@@ -72,7 +72,7 @@ public class CSFastaQualEntry implements FastaQualEntryInterface {
     public void addFastQEntryPosition(int csInt, int qInt )
     {
         char csValue = convertCSIntToCSChar(csInt);
-        String qValue = convertQualToBWAQual(qInt); 
+        String qValue = convertQual(qInt); 
         
         if(qInt == 63)
         {
@@ -89,15 +89,13 @@ public class CSFastaQualEntry implements FastaQualEntryInterface {
         return intToCharMap.get(csInt);
     }
     
-    private String convertQualToBWAQual(int qInt)
+    private String convertQual(int qInt)
     {
         
         if(qInt ==63){qInt=0;}
         if(qInt ==1){qInt=0;}
         if(qInt ==2){qInt=0;}
-        if(qInt ==3){qInt=0;}
-        
-        qInt = qInt+33;     
+        if(qInt ==3){qInt=0;}                    
         
         String qualValue = Integer.toString(qInt);
         
