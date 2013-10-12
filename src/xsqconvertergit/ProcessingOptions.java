@@ -26,6 +26,8 @@ public class ProcessingOptions {
     
     private Integer readLenghtOutputCutoff;
     
+    private Boolean outputLeadingBaseAndColorCall1 = false;
+    
     //subset     
     private Boolean barCodeSubset = false;   
     private Map<Integer, Integer> barcodesSubsetList;
@@ -171,6 +173,16 @@ public class ProcessingOptions {
     public void setReadLenghtOutputCutoff(Integer readLenghtOutputCutoff) {
         this.readLenghtOutputCutoff = readLenghtOutputCutoff;
     }
+
+    public Boolean getOutputLeadingBaseAndColorCall1() {
+        return outputLeadingBaseAndColorCall1;
+    }
+
+    public void setOutputLeadingBaseAndColorCall1(Boolean outputLeadingBaseAndColorCall1) {
+        this.outputLeadingBaseAndColorCall1 = outputLeadingBaseAndColorCall1;
+    }
+    
+    
     
     
     
