@@ -18,6 +18,8 @@ public interface FastaQualEntryInterface extends CSFastQEntryInterface{
     
     void setReadLengthCutoff(int readStartPosition);
     
+    void setLeadingBase(Character leadingBase);
+    
     String getSeqName();
     
     String getSeq();

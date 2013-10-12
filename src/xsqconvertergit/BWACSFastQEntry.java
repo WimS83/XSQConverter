@@ -18,6 +18,8 @@ public class BWACSFastQEntry implements CSFastQEntryInterface {
     
     private String seqName = null;
     private String description = "+";
+    
+    private Character leadingBase = null;
       
     
     private StringBuilder readCSSb = null;
@@ -110,6 +112,7 @@ public class BWACSFastQEntry implements CSFastQEntryInterface {
         sb.append("@");
         sb.append(seqName);
         sb.append("\n");
+        if(leadingBase != null){sb.append(leadingBase);}        
         sb.append(readCSSb.substring(readStartPosition, readEndPosition));
         sb.append("\n");
         sb.append(description);
@@ -129,6 +132,15 @@ public class BWACSFastQEntry implements CSFastQEntryInterface {
     public String getSeq() {
       return readCSSb.toString();
     }
+
+    @Override
+    public void setLeadingBase(Character leadingBase) {
+        this.leadingBase = leadingBase;
+    }
+
+   
+    
+    
     
     
     

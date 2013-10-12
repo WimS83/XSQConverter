@@ -52,7 +52,7 @@ public class XSQConverterGit {
         options.addOption("w","overwrite", false, "overwrite existing output. By default libraries for which existing output is present are skipped. ");
         options.addOption("u","use-barcode-name", false, "use barcode in the output names. Should always be used when processing multiple unassigned libraries by barcode because they have the same name.");
         options.addOption("x","read-lenght-cutoff", true, "Only output reads untill this cutoff. Works on all tags.");
-        options.addOption("t", true, "Add the leading base and color call. BWA and Bowtie do not use these but other mappers do.");
+        options.addOption("t", false, "Add the leading base and color call. BWA and Bowtie do not use these but other mappers do. Not yet available for mate pair barcode runs. Can only be used for output in Sanger or csfasta format.");
         
         ProcessingOptions processingOptions = new ProcessingOptions();
         
@@ -105,9 +105,24 @@ public class XSQConverterGit {
         if(cmd.hasOption("u"))
         {
             processingOptions.setUseBarcodeInOutputName(true);
-        }
+        } 
         
         processingOptions.setFastQDialect(FastQDialect.valueOf(cmd.getOptionValue("f").toLowerCase()));        
+        
+        
+        if(cmd.hasOption("t"))
+        {
+            if(processingOptions.getFastQDialect().equals(FastQDialect.bwa))
+            {
+                System.out.println("Can't output leading base and color call for BWA output because of double encoding of color calls. ");
+                System.exit(1);
+            }
+            else
+            {
+                processingOptions.setOutputLeadingBaseAndColorCall1(true);
+            }  
+        }
+        
                      
         processingOptions.setChunkSize( new Long(cmd.getOptionValue("c", "1000000")));     
         

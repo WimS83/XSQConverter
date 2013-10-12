@@ -18,6 +18,8 @@ public class SangerCSFastQEntry implements CSFastQEntryInterface {
     
     private String seqName = null;
     private String description = "+";
+    
+    private Character leadingBase = null;
       
     
     private StringBuilder readCSSb = null;
@@ -111,6 +113,7 @@ public class SangerCSFastQEntry implements CSFastQEntryInterface {
         sb.append("@");
         sb.append(seqName);
         sb.append("\n");
+        if(leadingBase != null){sb.append(leadingBase);}     
         sb.append(readCSSb.substring(readStartPosition, readEndPosition));
         sb.append("\n");
         sb.append(description);
@@ -124,6 +127,11 @@ public class SangerCSFastQEntry implements CSFastQEntryInterface {
     @Override
     public String getSeqName() {
         return seqName;
+    }
+    
+    @Override
+    public void setLeadingBase(Character leadingBase) {
+        this.leadingBase = leadingBase;
     }
     
     

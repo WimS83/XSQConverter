@@ -26,6 +26,8 @@ public class CSFastaQualEntry implements FastaQualEntryInterface {
     
     private String seqName = null;
     private String description = "+";
+    
+    private Character leadingBase = null;
       
     
     private StringBuilder readCSSb = null;
@@ -116,6 +118,7 @@ public class CSFastaQualEntry implements FastaQualEntryInterface {
         sb.append(">");
         sb.append(seqName);
         sb.append("\n");
+        if(leadingBase != null){sb.append(leadingBase);}     
         sb.append(readCSSb.substring(readStartPosition, readEndPosition));
         sb.append("\n");
         
@@ -145,6 +148,11 @@ public class CSFastaQualEntry implements FastaQualEntryInterface {
         sb.append("\n");
 		return sb.toString();
 	}
+        
+         @Override
+    public void setLeadingBase(Character leadingBase) {
+        this.leadingBase = leadingBase;
+    }
     
     
     

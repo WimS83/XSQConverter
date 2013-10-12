@@ -8,6 +8,7 @@ import xsqconvertergit.interfaces.*;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -50,6 +51,8 @@ public class OutPutWriter {
     private HashMap<String, FastQWriter> libraryAndTagSpecificWriters;   
     
     
+    private EnumMap<TagEnum, Character> tagLeadingBaseMap;    
+    
 
     public OutPutWriter(ProcessingOptions processingOptions, Map<String, Integer> tagNameLengthMap, List<Library> libraries) {
         
@@ -74,6 +77,12 @@ public class OutPutWriter {
         BWAToCSMap.put('G', '2');
         BWAToCSMap.put('T', '3');  
         BWAToCSMap.put('N', '.');  
+        
+        tagLeadingBaseMap = new EnumMap<TagEnum, Character>(TagEnum.class);
+        tagLeadingBaseMap.put(TagEnum.F3, 'T');
+        tagLeadingBaseMap.put(TagEnum.F5, 'G');
+        tagLeadingBaseMap.put(TagEnum.R3, 'G');  
+        
          
     }    
     
@@ -97,6 +106,7 @@ public class OutPutWriter {
                 break;
         }  
         
+        //for a matepair barcode run 
         if(processingOptions.getMatePairBarcodeRun())
         {
             if(currentTagName.equalsIgnoreCase(processingOptions.getMatePairBarcodeLocationEnum().toString()))
@@ -104,14 +114,25 @@ public class OutPutWriter {
                 cSFastQEntry.setReadStartPosition(1+processingOptions.getMatePairBarCodeLength());    
             }
             else
-            {
-                 cSFastQEntry.setReadStartPosition(1);
+            {   
+                cSFastQEntry.setReadStartPosition(1);                                
             }
             
         }
+        //for a non matepair barcode run 
         else
         {
-            cSFastQEntry.setReadStartPosition(1);
+              if(processingOptions.getOutputLeadingBaseAndColorCall1())
+              {
+                  cSFastQEntry.setReadStartPosition(0);
+                  Character leadingBase = tagLeadingBaseMap.get(TagEnum.valueOf(currentTagName));                  
+                  cSFastQEntry.setLeadingBase(leadingBase);
+                  
+              }
+              else
+              {
+                    cSFastQEntry.setReadStartPosition(1);
+              }
         
         }
         
