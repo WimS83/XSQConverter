@@ -61,8 +61,8 @@ public class BcFragTest {
         arguments.add(testBaseOutputDir.getPath());
         arguments.add("-f");
         arguments.add("BWA");
-//        arguments.add("Sanger");
-//        arguments.add("-t");
+        //arguments.add("Sanger");
+        //arguments.add("-t");
         
           
         XSQConverterGit.main(arguments.toArray(new String[0]));

@@ -10,7 +10,7 @@ package xsqconvertergit;
  */
 public enum TagEnum {
     
-    F3, F5, R3
+    F3, R3, F5P2,F5BC,F5DNA,F5RNA 
     
     
 }

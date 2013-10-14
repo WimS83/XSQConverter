@@ -79,9 +79,12 @@ public class OutPutWriter {
         BWAToCSMap.put('N', '.');  
         
         tagLeadingBaseMap = new EnumMap<TagEnum, Character>(TagEnum.class);
-        tagLeadingBaseMap.put(TagEnum.F3, 'T');
-        tagLeadingBaseMap.put(TagEnum.F5, 'G');
+        tagLeadingBaseMap.put(TagEnum.F3, 'T');        
         tagLeadingBaseMap.put(TagEnum.R3, 'G');  
+        tagLeadingBaseMap.put(TagEnum.F5P2, 'T');  
+        tagLeadingBaseMap.put(TagEnum.F5BC, 'G'); 
+        tagLeadingBaseMap.put(TagEnum.F5DNA, 'T');
+        tagLeadingBaseMap.put(TagEnum.F5RNA, 'G');
         
          
     }    
@@ -125,7 +128,7 @@ public class OutPutWriter {
               if(processingOptions.getOutputLeadingBaseAndColorCall1())
               {
                   cSFastQEntry.setReadStartPosition(0);
-                  Character leadingBase = tagLeadingBaseMap.get(TagEnum.valueOf(currentTagName));                  
+                  Character leadingBase = tagLeadingBaseMap.get(TagEnum.valueOf(currentTagName.replace("-", "")));                  
                   cSFastQEntry.setLeadingBase(leadingBase);
                   
               }
