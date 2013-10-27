@@ -13,6 +13,9 @@ The libraries are from http://www.hdfgroup.org/HDF5/
 
 Other libraries used are from apache commons and a junit-addon. 
 
+More information about the XSQ format is here:
+https://www.lifetechnologies.com/content/dam/LifeTech/Documents/PDFs/software-downloads/XSQ_file_format_specifications_v1.0.1.pdf
+
 
 The command line interface:
 
