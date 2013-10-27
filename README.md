@@ -1,7 +1,7 @@
 XSQConverter
 ============
 
-The XSQConverter tool converts SOLiD XSQ files to normal Sanger colorspacefastq or to BWA 0.5.9 specific (double encoded) colorspace fastq files.
+The XSQConverter tool converts SOLiD XSQ files to normal Sanger colorspace fastq or to BWA 0.5.9 specific (double encoded) colorspace fastq files.
 There is also an option to output CSFasta and qual files. 
 
 This tool is able to convert XSQ files comparatively fast by using the native HDF5 C++ libraries, OO wrapped by HDF5 Java library plus some java code written by myself to process the XSQ file. 
