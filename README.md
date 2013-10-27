@@ -6,6 +6,8 @@ There is also an option to output CSFasta and qual files.
 
 This tool is able to convert XSQ files comparatively fast by using the native HDF5 C++ libraries, OO wrapped by HDF5 Java library plus some java code written by myself to process the XSQ file. 
 
+The output is a directory structure with output files in the specified format for every  combination library(lib_sample1, lib_sample2) and tag (F3, F5 ,R3 etc). 
+
 I have added a zip file with the HDF5 native c++ libraries and the java wrappers to the source because I have had troubles myself downloading the correct libraries again from the HDFGroup website.  
 The libraries are from http://www.hdfgroup.org/HDF5/
 
