@@ -62,6 +62,7 @@ public class BcFragTest {
         arguments.add("-f");
         arguments.add("BWA");
         //arguments.add("Sanger");
+        //arguments.add("csfasta");
         //arguments.add("-t");
         
           

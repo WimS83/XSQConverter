@@ -328,7 +328,7 @@ public class XSQConverterGit {
             }
             
         } catch (Exception ex) {
-            System.out.println("Can't read matePairBarCode file "+ matePairBarCodeFile.getPath());
+            System.out.println("Exception thrown during parsing of the matePairBarCode file."+ matePairBarCodeFile.getPath()+ "Check that all lines in the file are \"barcode\\tbarcodeName\\n");
             System.exit(1);       
         }
         
