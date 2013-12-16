@@ -2,7 +2,18 @@
 
 If you find this project usefull you can send a donation to
 
-https://blockchain.info/address/1KrgFf1JGp59V9NTCndPFT5Mwo91X2AB5g
+<img src="https://blockchain.info/qr?data=1KrgFf1JGp59V9NTCndPFT5Mwo91X2AB5g&size=200"></a>
+
+1KrgFf1JGp59V9NTCndPFT5Mwo91X2AB5g
+
+
+
+
+
+
+
+
+
 
 
 XSQConverter
