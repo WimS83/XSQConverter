@@ -1,4 +1,8 @@
+<img src="https://blockchain.info//Resources/buttons/donate_64.png"/>
 
+Donations for this project are accepted at:
+
+https://blockchain.info/address/1KrgFf1JGp59V9NTCndPFT5Mwo91X2AB5g
 
 
 XSQConverter
