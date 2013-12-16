@@ -1,6 +1,6 @@
 <img src="https://blockchain.info//Resources/buttons/donate_64.png"/>
 
-Donations for this project are accepted at:
+If you find this project usefull you can send a donation to
 
 https://blockchain.info/address/1KrgFf1JGp59V9NTCndPFT5Mwo91X2AB5g
 
